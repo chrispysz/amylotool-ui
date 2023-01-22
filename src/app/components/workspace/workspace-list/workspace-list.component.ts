@@ -11,9 +11,27 @@ import { Router } from '@angular/router';
   templateUrl: './workspace-list.component.html',
   styleUrls: ['./workspace-list.component.scss'],
 })
-export class WorkspaceListComponent implements AfterViewInit {
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+export class WorkspaceListComponent implements OnInit {
+  private paginator: MatPaginator | undefined;
+  private sort: MatSort | undefined;
+
+  @ViewChild(MatSort) set matSort(ms: MatSort) {
+    this.sort = ms;
+    this.setDataSourceAttributes();
+  }
+
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    this.paginator = mp;
+    this.setDataSourceAttributes();
+  }
+
+  setDataSourceAttributes() {
+    if (!this.dataSource || !this.paginator || !this.sort) {
+      return;
+    }
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
 
   loading = true;
 
@@ -27,11 +45,9 @@ export class WorkspaceListComponent implements AfterViewInit {
   ) {}
   displayedColumns: string[] = ['name', 'lastModified'];
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.firebaseService.getAll().then((workspaces) => {
       this.dataSource = new MatTableDataSource(workspaces);
-      this.dataSource.sort = this.sort;
-      this.dataSource.paginator = this.paginator;
       this.loading = false;
     });
   }

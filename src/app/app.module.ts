@@ -23,6 +23,9 @@ import { WelcomePageComponent } from './components/shared/welcome-page/welcome-p
 import { initializeApp, getApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { WorkspaceAddComponent } from './components/workspace/workspace-add/workspace-add.component';
+import {MatStepperModule} from '@angular/material/stepper';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -32,6 +35,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     NavHeaderComponent,
     PageNotFoundComponent,
     WelcomePageComponent,
+    WorkspaceAddComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,6 +53,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
+    MatStepperModule,
+    FormsModule,
+    ReactiveFormsModule,
+    
 
     provideFirebaseApp(() =>
       initializeApp({

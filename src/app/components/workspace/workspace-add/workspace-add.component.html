@@ -1,0 +1,56 @@
+<mat-sidenav-container style="height: 100vh;">
+    <mat-sidenav mode="side" opened>
+        <mat-form-field appearance="fill" style="width: 15vw;">
+            <input matInput [disabled]="true" />
+        </mat-form-field>
+        <mat-nav-list>
+            <a mat-list-item [routerLink]="'/workspaces'">
+                <div class="v-centered">
+                    <mat-icon>folder_open</mat-icon> Browse
+                </div>
+            </a>
+            <a mat-list-item [routerLink]="'/workspaces/add'">
+                <div class="v-centered">
+                    <mat-icon>create_new_folder</mat-icon> Add workspace
+                </div>
+            </a>
+            <a mat-list-item [routerLink]="'/contacts'">
+                <div class="v-centered"><mat-icon>settings</mat-icon> Configure</div>
+            </a>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div *ngIf="loading; else content">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <ng-template #content>
+            <mat-horizontal-stepper [linear]="true" #stepper>
+                <mat-step [stepControl]="firstFormGroup">
+                    <form [formGroup]="firstFormGroup">
+                        <ng-template matStepLabel>Upload FASTA file</ng-template>
+                        <input type="file" formControlName="file" (change)="onFileChange($event)" #fileInput />
+                        <div>
+                            <button mat-raised-button [disabled]="firstFormGroup.invalid"
+                                (click)="onNextClick(fileInput.files!, stepper)">
+                                Next
+                            </button>
+                        </div>
+                    </form>
+                </mat-step>
+                <mat-step [stepControl]="secondFormGroup">
+                    <form [formGroup]="secondFormGroup">
+                        <ng-template matStepLabel>Name your workspace</ng-template>
+                        <mat-form-field>
+                            <mat-label>Name</mat-label>
+                            <input matInput formControlName="name" type="text" />
+                        </mat-form-field>
+                        <div>
+                            <button mat-raised-button [disabled]="secondFormGroup.invalid"
+                                (click)="onSubmit()">Submit</button>
+                        </div>
+                    </form>
+                </mat-step>
+            </mat-horizontal-stepper>
+        </ng-template>
+    </mat-sidenav-content>
+</mat-sidenav-container>
