@@ -4,13 +4,14 @@ import { FirebaseService } from 'src/app/services/firebase.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-workspace-list',
   templateUrl: './workspace-list.component.html',
   styleUrls: ['./workspace-list.component.scss'],
 })
-export class WorkspaceListComponent implements OnInit, AfterViewInit {
+export class WorkspaceListComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -20,7 +21,10 @@ export class WorkspaceListComponent implements OnInit, AfterViewInit {
 
   showFiller = false;
 
-  constructor(private readonly firebaseService: FirebaseService) {}
+  constructor(
+    private readonly firebaseService: FirebaseService,
+    readonly router: Router
+  ) {}
   displayedColumns: string[] = ['name', 'lastModified'];
 
   ngAfterViewInit() {
@@ -32,7 +36,10 @@ export class WorkspaceListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit(): void {}
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
 
   getDateFromTimestamp(timestamp: any): Date | string {
     if (!timestamp || typeof timestamp !== 'object' || !timestamp.seconds) {

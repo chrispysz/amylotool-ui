@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { NavHeaderComponent } from './components/shared/nav-header/nav-header.component';
 import { PageNotFoundComponent } from './components/shared/page-not-found/page-not-found.component';
@@ -20,6 +22,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { WelcomePageComponent } from './components/shared/welcome-page/welcome-page.component';
 import { initializeApp, getApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,9 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
     MatPaginatorModule,
     MatTableModule,
     MatSidenavModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressBarModule,
 
     provideFirebaseApp(() =>
       initializeApp({
