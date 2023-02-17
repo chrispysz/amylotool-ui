@@ -13,19 +13,27 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
 import { NavHeaderComponent } from './components/shared/nav-header/nav-header.component';
 import { PageNotFoundComponent } from './components/shared/page-not-found/page-not-found.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { WelcomePageComponent } from './components/shared/welcome-page/welcome-page.component';
-import { initializeApp, getApp, provideFirebaseApp } from '@angular/fire/app';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { WorkspaceAddComponent } from './components/workspace/workspace-add/workspace-add.component';
-import {MatStepperModule} from '@angular/material/stepper';
+import { MatStepperModule } from '@angular/material/stepper';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LoginCardComponent } from './components/shared/login-card/login-card.component';
+import { HttpClientModule } from '@angular/common/http';
+import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideStorage, getStorage } from '@angular/fire/storage';
+import { environment } from './environments/environment';
 
 @NgModule({
   declarations: [
@@ -36,6 +44,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     PageNotFoundComponent,
     WelcomePageComponent,
     WorkspaceAddComponent,
+    LoginCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -53,23 +62,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
     MatStepperModule,
+    MatSnackBarModule,
     FormsModule,
     ReactiveFormsModule,
-    
+    HttpClientModule,
 
-    provideFirebaseApp(() =>
-      initializeApp({
-        projectId: 'amylotool',
-        appId: '1:1073210650885:web:0184b2652a183d3cd5076c',
-        storageBucket: 'amylotool.appspot.com',
-        apiKey: 'AIzaSyDc-jlXXxteA-PDdujqJ7Dt-Nni9e_z3s0',
-        authDomain: 'amylotool.firebaseapp.com',
-        messagingSenderId: '1073210650885',
-        measurementId: 'G-4L34E3V82X',
-      })
-    ),
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),
+    provideAuth(() => getAuth()),
+    provideStorage(() => getStorage()),
   ],
   providers: [],
   bootstrap: [AppComponent],

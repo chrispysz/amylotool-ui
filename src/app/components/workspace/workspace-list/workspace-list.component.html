@@ -42,10 +42,10 @@
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" [routerLink]="['/workspaces/details']" [queryParams]="{id: row.id}" queryParamsHandling="merge"></tr>
         </table>
       </div>
-      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20, 50]"></mat-paginator>
+      <mat-paginator [pageSize]="20" [pageSizeOptions]="[5, 10, 20, 50]"></mat-paginator>
     </ng-template>
   </mat-sidenav-content>
 </mat-sidenav-container>

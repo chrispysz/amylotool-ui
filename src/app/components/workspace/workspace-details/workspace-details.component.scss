@@ -1,0 +1,54 @@
+tr.detail {
+  height: 0;
+}
+
+.element-row td {
+  border-bottom-width: 0;
+}
+
+.element-detail {
+  overflow-x: auto;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+}
+
+.element-header {
+  font-family: "Roboto Mono", monospace;
+  max-width: 43ch;
+  margin-left: 100px;
+}
+
+
+.element-description {
+  font-family: "Roboto Mono", monospace;
+  max-width: 42ch;
+  margin-left: 100px;
+}
+
+.mat-column-expand {
+  width: 5%;
+}
+
+.mat-column-name {
+  width: 30%;
+}
+
+.mat-table {
+  display: block;
+  overflow: auto;
+  max-height: 800px;
+}
+.mat-mdc-row .mat-mdc-cell {
+  cursor: pointer;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+  background-color: gainsboro;
+}
+
+:host {
+  display: block;
+  width: 100%;
+}

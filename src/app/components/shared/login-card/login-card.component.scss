@@ -1,0 +1,25 @@
+.login-card {
+  width: 500px;
+  height: 400px;
+  margin: auto;
+  margin-top: 10vh;
+  justify-content: center;
+}
+
+mat-card-header {
+  display: inline-block;
+  align-self: center;
+  text-align: center;
+}
+
+mat-card-content {
+    height: 200px;
+  align-items: center;
+  padding: 20px;
+}
+
+mat-card-actions {
+  display: inline-block;
+  align-self: flex-end;
+  padding: 20px;
+}

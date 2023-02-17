@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { WelcomePageComponent } from './components/shared/welcome-page/welcome-page.component';
 import { WorkspaceAddComponent } from './components/workspace/workspace-add/workspace-add.component';
+import { WorkspaceDetailsComponent } from './components/workspace/workspace-details/workspace-details.component';
 import { WorkspaceListComponent } from './components/workspace/workspace-list/workspace-list.component';
 import { AuthGuard } from './utils/auth.guard';
 
@@ -16,10 +17,11 @@ const routes: Routes = [
     path: 'workspaces',
     component: WorkspaceListComponent,
     title: 'Workspaces - AmyloTool',
+    canActivate: [AuthGuard],
   },
   {
     path: 'workspaces/details',
-    component: WorkspaceListComponent,
+    component: WorkspaceDetailsComponent,
     title: 'Workspaces details - AmyloTool',
     canActivate: [AuthGuard],
   },
