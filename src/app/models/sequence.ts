@@ -1,4 +1,3 @@
-
 import { PredictLog } from './predictLog';
 export interface Sequence {
   id: string;

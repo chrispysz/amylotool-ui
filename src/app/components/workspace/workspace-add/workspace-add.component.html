@@ -1,56 +1,73 @@
-<mat-sidenav-container style="height: 100vh;">
-    <mat-sidenav mode="side" opened>
-        <mat-form-field appearance="fill" style="width: 15vw;">
-            <input matInput [disabled]="true" />
-        </mat-form-field>
-        <mat-nav-list>
-            <a mat-list-item [routerLink]="'/workspaces'">
-                <div class="v-centered">
-                    <mat-icon>folder_open</mat-icon> Browse
-                </div>
-            </a>
-            <a mat-list-item [routerLink]="'/workspaces/add'">
-                <div class="v-centered">
-                    <mat-icon>create_new_folder</mat-icon> Add workspace
-                </div>
-            </a>
-            <a mat-list-item [routerLink]="'/contacts'">
-                <div class="v-centered"><mat-icon>settings</mat-icon> Configure</div>
-            </a>
-        </mat-nav-list>
-    </mat-sidenav>
-    <mat-sidenav-content>
-        <div *ngIf="loading; else content">
-            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+<div *ngIf="loading; else content">
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
+<ng-template #content>
+  <mat-vertical-stepper
+    [linear]="true"
+    #stepper
+    [animationDuration]="'1000'"
+    style="height: 93vh"
+  >
+    <mat-step [stepControl]="firstFormGroup">
+      <form [formGroup]="firstFormGroup">
+        <ng-template matStepLabel>Upload FASTA file</ng-template>
+        <div class="stepper-content">
+          <button mat-mini-fab color="primary" (click)="fileInput.click()">
+            <mat-icon style="margin: 0px">attach_file</mat-icon>
+          </button>
+          <input
+            hidden
+            type="file"
+            formControlName="file"
+            (change)="onFileChange($event, stepper)"
+            #fileInput
+          />
+          <p *ngIf="!sizeValid">
+            Size limit reached. Check if file contains less than 1000 sequences
+            and their length doesn't exceed 512
+          </p>
         </div>
-        <ng-template #content>
-            <mat-horizontal-stepper [linear]="true" #stepper>
-                <mat-step [stepControl]="firstFormGroup">
-                    <form [formGroup]="firstFormGroup">
-                        <ng-template matStepLabel>Upload FASTA file</ng-template>
-                        <input type="file" formControlName="file" (change)="onFileChange($event)" #fileInput />
-                        <div>
-                            <button mat-raised-button [disabled]="firstFormGroup.invalid"
-                                (click)="onNextClick(fileInput.files!, stepper)">
-                                Next
-                            </button>
-                        </div>
-                    </form>
-                </mat-step>
-                <mat-step [stepControl]="secondFormGroup">
-                    <form [formGroup]="secondFormGroup">
-                        <ng-template matStepLabel>Name your workspace</ng-template>
-                        <mat-form-field>
-                            <mat-label>Name</mat-label>
-                            <input matInput formControlName="name" type="text" />
-                        </mat-form-field>
-                        <div>
-                            <button mat-raised-button [disabled]="secondFormGroup.invalid"
-                                (click)="onSubmit()">Submit</button>
-                        </div>
-                    </form>
-                </mat-step>
-            </mat-horizontal-stepper>
-        </ng-template>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="secondFormGroup">
+      <form [formGroup]="secondFormGroup">
+        <ng-template matStepLabel>Name your workspace</ng-template>
+        <div class="stepper-content">
+          <mat-form-field>
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" type="text" />
+          </mat-form-field>
+          <p *ngIf="!nameValid">Name already exists!</p>
+          <button
+            mat-raised-button
+            color="primary"
+            [disabled]="secondFormGroup.invalid || !sizeValid"
+            (click)="onNextClick(stepper)"
+          >
+            Next
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Summary</ng-template>
+      <div *ngIf="stepperLoading; else submitContent">
+        <mat-spinner></mat-spinner>
+      </div>
+      <ng-template #submitContent>
+        <div class="stepper-content">
+          <div>
+            <p>Name: {{ secondFormGroup.value.name }}</p>
+            <p>
+              Number of sequences:
+              {{ fastaSequences ? fastaSequences.length : 0 }}
+            </p>
+          </div>
+          <button mat-raised-button color="primary" (click)="onSubmit()">
+            Submit
+          </button>
+        </div>
+      </ng-template>
+    </mat-step>
+  </mat-vertical-stepper>
+</ng-template>

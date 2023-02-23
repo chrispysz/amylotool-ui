@@ -11,13 +11,11 @@
   background-color: gainsboro;
 }
 
-.mat-icon {
-  margin-right: 8px;
-}
-
 .v-centered {
   display: flex;
-  align-items: center;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
 }
 
 :host {

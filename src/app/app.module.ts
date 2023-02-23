@@ -17,7 +17,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { NavHeaderComponent } from './components/shared/nav-header/nav-header.component';
 import { PageNotFoundComponent } from './components/shared/page-not-found/page-not-found.component';
@@ -34,6 +34,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { environment } from './environments/environment';
+import { MatDialogModule } from '@angular/material/dialog';
+import { SequenceDialogComponent } from './components/shared/sequence-dialog/sequence-dialog.component';
+import { WorkspaceSettingsComponent } from './components/workspace/workspace-settings/workspace-settings.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +48,8 @@ import { environment } from './environments/environment';
     WelcomePageComponent,
     WorkspaceAddComponent,
     LoginCardComponent,
+    SequenceDialogComponent,
+    WorkspaceSettingsComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,9 +65,11 @@ import { environment } from './environments/environment';
     MatTableModule,
     MatSidenavModule,
     MatFormFieldModule,
+    MatDialogModule,
     MatInputModule,
     MatProgressBarModule,
     MatCardModule,
+    MatSnackBarModule,
     MatProgressSpinnerModule,
     MatStepperModule,
     MatSnackBarModule,

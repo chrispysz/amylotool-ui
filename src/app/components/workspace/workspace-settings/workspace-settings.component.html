@@ -1,0 +1,28 @@
+<div *ngIf="loading; else content">
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
+<ng-template #content>
+  <div style="display: flex; flex-direction: column; align-items: flex-start">
+    <mat-form-field appearance="fill">
+      <mat-label>Threshold</mat-label>
+      <input matInput type="number" [(ngModel)]="workspace.threshold" />
+    </mat-form-field>
+    <button
+      mat-raised-button
+      title="Delete"
+      color="primary"
+      (click)="deleteWorkspace()"
+    >
+      <mat-icon style="margin: 0">delete</mat-icon>Delete
+    </button>
+
+    <button
+      mat-raised-button
+      title="Delete"
+      color="primary"
+      (click)="saveWorkspace()"
+    >
+      <mat-icon style="margin: 0">delete</mat-icon>Save
+    </button>
+  </div>
+</ng-template>

@@ -2,7 +2,10 @@
   margin-right: 8px;
 }
 
-.v-centered {
+.stepper-content {
+  margin-top: 30px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 50px;
 }

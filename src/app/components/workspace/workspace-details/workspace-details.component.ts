@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -16,6 +12,10 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
+import { MatDialog } from '@angular/material/dialog';
+import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { PredictionService } from 'src/app/services/prediction.service';
 @Component({
   selector: 'app-workspace-details',
   templateUrl: './workspace-details.component.html',
@@ -55,6 +55,8 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   loading = true;
 
+  predicting = false;
+
   dataSource!: MatTableDataSource<any>;
 
   showFiller = false;
@@ -65,20 +67,14 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   constructor(
     private readonly firebaseService: FirebaseService,
+    private readonly predictionService: PredictionService,
     readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly dataHolderService: DataHolderService
+    private readonly dialog: MatDialog,
+    private readonly _snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    // this.route.queryParams.subscribe((params) => {
-    //   this.workspaceId = params['id'];
-    //   this.firebaseService.loadWorkspace(this.workspaceId).then((workspace) => {
-    //     this.dataSource = new MatTableDataSource(workspace.sequences);
-    //     this.dataHolderService.setWorkspace(workspace);
-    //     this.loading = false;
-    //   });
-    // });
     this.route.queryParams.subscribe((params) => {
       this.workspaceId = params['id'];
       this.firebaseService.loadWorkspace(this.workspaceId).then((workspace) => {
@@ -96,5 +92,26 @@ export class WorkspaceDetailsComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource!.filter = filterValue.trim().toLowerCase();
+  }
+
+  openDialog(identifier: string, sequence: string): void {
+    const dialogRef = this.dialog.open(SequenceDialogComponent, {
+      data: { identifier: identifier, sequence: sequence },
+      width: '600px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {});
+  }
+
+  predict(sequence: string) {
+    this.predicting = true;
+    this.predictionService
+      .predictFull('AmBERT', sequence)
+      .subscribe((result) => {
+        this._snackBar.open(result.results, 'OK', {
+          duration: 3.5 * 1000,
+        });
+        this.predicting = false;
+      });
   }
 }

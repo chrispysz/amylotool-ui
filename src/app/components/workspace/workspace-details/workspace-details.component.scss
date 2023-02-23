@@ -27,6 +27,10 @@ tr.detail {
   margin-left: 100px;
 }
 
+.action-button {
+  margin: 0 5px;
+}
+
 .mat-column-expand {
   width: 5%;
 }
@@ -40,6 +44,7 @@ tr.detail {
   overflow: auto;
   max-height: 800px;
 }
+
 .mat-mdc-row .mat-mdc-cell {
   cursor: pointer;
 }

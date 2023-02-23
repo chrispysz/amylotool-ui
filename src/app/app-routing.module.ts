@@ -4,6 +4,7 @@ import { WelcomePageComponent } from './components/shared/welcome-page/welcome-p
 import { WorkspaceAddComponent } from './components/workspace/workspace-add/workspace-add.component';
 import { WorkspaceDetailsComponent } from './components/workspace/workspace-details/workspace-details.component';
 import { WorkspaceListComponent } from './components/workspace/workspace-list/workspace-list.component';
+import { WorkspaceSettingsComponent } from './components/workspace/workspace-settings/workspace-settings.component';
 import { AuthGuard } from './utils/auth.guard';
 
 const routes: Routes = [
@@ -22,13 +23,19 @@ const routes: Routes = [
   {
     path: 'workspaces/details',
     component: WorkspaceDetailsComponent,
-    title: 'Workspaces details - AmyloTool',
+    title: 'Workspace details - AmyloTool',
     canActivate: [AuthGuard],
   },
   {
     path: 'workspaces/add',
     component: WorkspaceAddComponent,
     title: 'Add workspace - AmyloTool',
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'workspaces/settings',
+    component: WorkspaceSettingsComponent,
+    title: 'Workspace settings - AmyloTool',
     canActivate: [AuthGuard],
   },
   { path: '**', redirectTo: 'welcome', pathMatch: 'full' },

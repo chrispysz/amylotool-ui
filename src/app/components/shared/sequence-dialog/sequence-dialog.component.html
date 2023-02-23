@@ -1,0 +1,30 @@
+<h1 mat-dialog-title>
+  {{ data.identifier === "" ? "Add sequence" : "Edit sequence" }}
+</h1>
+<div mat-dialog-content>
+  <div style="display: flex; flex-direction: column">
+    <mat-form-field appearance="fill">
+      <mat-label>Identifier</mat-label>
+      <input matInput [(ngModel)]="data.identifier" />
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Sequence</mat-label>
+      <textarea matInput rows="8" [(ngModel)]="data.sequence"></textarea>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <div
+    style="display: flex; flex-direction: row; justify-content: space-between"
+  >
+    <button mat-button (click)="onNoClick()">Back</button>
+    <button
+      mat-raised-button
+      color="primary"
+      [mat-dialog-close]="[data.identifier, data.sequence]"
+      cdkFocusInitial
+    >
+      Save
+    </button>
+  </div>
+</div>
