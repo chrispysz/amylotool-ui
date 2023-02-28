@@ -16,6 +16,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PredictionService } from 'src/app/services/prediction.service';
+import { Workspace } from 'src/app/models/workspace';
+import { serverTimestamp } from '@angular/fire/firestore';
+import { Sequence } from 'src/app/models/sequence';
 @Component({
   selector: 'app-workspace-details',
   templateUrl: './workspace-details.component.html',
@@ -61,7 +64,9 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   showFiller = false;
 
-  workspaceId!: string;
+  workspace!: Workspace;
+
+  threshold!: number;
 
   displayedColumns: string[] = ['expand', 'name', 'status', 'actions'];
 
@@ -70,21 +75,26 @@ export class WorkspaceDetailsComponent implements OnInit {
     private readonly predictionService: PredictionService,
     readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly dialog: MatDialog,
-    private readonly _snackBar: MatSnackBar
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      this.workspaceId = params['id'];
-      this.firebaseService.loadWorkspace(this.workspaceId).then((workspace) => {
-        this.dataSource = new MatTableDataSource(
-          workspace.sequences.map((element) => ({
-            ...element,
-            isExpanded: false,
-          }))
-        );
-        this.loading = false;
+      this.firebaseService.loadWorkspace(params['id']).then((workspace) => {
+        this.workspace = workspace;
+        this.workspace.sequences.map((element) => ({
+          ...element,
+          expanded: false,
+          status: 'PENDING',
+        }));
+        this.firebaseService
+          .getWorkspaceRef(this.workspace.id)
+          .then((dbRef) => {
+            this.threshold = dbRef.threshold;
+            this.refreshSequences();
+            this.dataSource = new MatTableDataSource(this.workspace.sequences);
+            this.loading = false;
+          });
       });
     });
   }
@@ -100,18 +110,117 @@ export class WorkspaceDetailsComponent implements OnInit {
       width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe((result) => {});
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!identifier && !sequence) {
+        this.addSequence(result);
+      } else {
+        this.updateSequence(result);
+      }
+    });
   }
 
-  predict(sequence: string) {
+  addSequence(result: any) {
+    let newSequence: Sequence = {
+      id: crypto.randomUUID(),
+      name: result[0],
+      value: result[1],
+      predictLogs: [],
+    };
+    this.workspace.sequences.push(newSequence);
+    this.saveChanges();
+  }
+
+  updateSequence(result: any) {
+    console.log(result.identifier);
+    console.log(result.sequence);
+  }
+
+  predict(sequence: Sequence) {
     this.predicting = true;
+    let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
     this.predictionService
-      .predictFull('AmBERT', sequence)
-      .subscribe((result) => {
-        this._snackBar.open(result.results, 'OK', {
-          duration: 3.5 * 1000,
+      .predictFull('AmBERT', sequence.value)
+      .subscribe((response) => {
+        seq.predictLogs.push({
+          model: 'AmBERT',
+          data: response.results,
         });
-        this.predicting = false;
+        this.saveChanges();
       });
+  }
+
+  predictionExists(sequence: Sequence) {
+    let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
+    let log = seq.predictLogs.find((l) => l.model == 'AmBERT');
+    return log ? true : false;
+  }
+
+  saveChanges() {
+    this.firebaseService.getWorkspaceRef(this.workspace.id).then((dbRef) => {
+      let savedWorkspace = {
+        ...this.workspace,
+      };
+      savedWorkspace.sequences.forEach((element: any) => {
+        delete element.expanded;
+        delete element.status;
+      });
+      this.firebaseService
+        .uploadWorkspace(
+          new Blob([JSON.stringify(savedWorkspace)], {
+            type: 'application/json',
+          }),
+          savedWorkspace.id
+        )
+        .then(() => {
+          dbRef.lastModified = serverTimestamp();
+          this.firebaseService.updateWorkspaceRef(dbRef).then(() => {
+            this.refreshSequences();
+            this.predicting = false;
+          });
+        });
+    });
+  }
+
+  getColoredRepresentation(sequence: Sequence) {
+    const coloredIndexes = Array(sequence.value.length).fill(false);
+    sequence.predictLogs.forEach((log: any) => {
+      if (log.model == 'AmBERT') {
+        log.data.forEach((pred: any) => {
+          if (Number(pred.prediction) > this.threshold) {
+            let start = pred.startIndex;
+            let end = pred.endIndex;
+            coloredIndexes.forEach((element, index) => {
+              if (index >= start && index <= end) {
+                coloredIndexes[index] = true;
+              }
+            });
+          }
+        });
+      }
+    });
+    let coloredRepresentation = '';
+    coloredIndexes.forEach((element, index) => {
+      if (element) {
+        coloredRepresentation += `<span style="color:green">${sequence.value[index]}</span>`;
+      } else {
+        coloredRepresentation += `<span style="color:red">${sequence.value[index]}</span>`;
+      }
+    });
+    return coloredRepresentation;
+  }
+
+  refreshSequences() {
+    this.workspace.sequences.forEach((sequence: any) => {
+      let modelLog = sequence.predictLogs.find((l: any) => l.model == 'AmBERT');
+      if (modelLog) {
+        let predictions = modelLog.data;
+        sequence.status = 'NEGATIVE';
+        predictions.forEach((pred: any) => {
+          if (Number(pred.prediction) > this.threshold) {
+            sequence.status = 'POSITIVE';
+          }
+        });
+      }
+    });
   }
 }

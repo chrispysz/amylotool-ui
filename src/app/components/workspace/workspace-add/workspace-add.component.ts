@@ -88,9 +88,10 @@ export class WorkspaceAddComponent implements OnInit {
       sequences: this.fastaSequences
         ? this.fastaSequences.map((sequence) => {
             return {
-              id: sequence.header,
+              id: crypto.randomUUID(),
               name: sequence.header,
               value: sequence.sequence,
+              status: 'PENDING',
               predictLogs: [],
             };
           })

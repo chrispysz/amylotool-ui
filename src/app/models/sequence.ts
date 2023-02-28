@@ -1,4 +1,4 @@
-import { PredictLog } from './predictLog';
+import { PredictLog } from './predict-log';
 export interface Sequence {
   id: string;
   name: string;

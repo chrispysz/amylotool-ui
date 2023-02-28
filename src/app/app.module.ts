@@ -37,6 +37,7 @@ import { environment } from './environments/environment';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SequenceDialogComponent } from './components/shared/sequence-dialog/sequence-dialog.component';
 import { WorkspaceSettingsComponent } from './components/workspace/workspace-settings/workspace-settings.component';
+import { NoSanitizePipe } from './utils/no-sanitize.pipe';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { WorkspaceSettingsComponent } from './components/workspace/workspace-set
     LoginCardComponent,
     SequenceDialogComponent,
     WorkspaceSettingsComponent,
+    NoSanitizePipe,
   ],
   imports: [
     BrowserModule,

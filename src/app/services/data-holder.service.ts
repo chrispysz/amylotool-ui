@@ -26,13 +26,13 @@ export class DataHolderService {
           id: 'dummy-1-s',
           name: 'Dummy Sequence',
           value: 'Dummy Sequence Value',
-          predictLogs: [],
+          predictLogs: []
         },
         {
           id: 'dummy-2-s',
           name: 'Dummy Sequence 2',
           value: 'Dummy Sequence Value 2',
-          predictLogs: [],
+          predictLogs: []
         }
       ],
     };
