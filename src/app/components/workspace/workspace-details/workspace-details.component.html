@@ -27,10 +27,20 @@
           <div matListItemTitle>Predict all</div>
         </a>
       </mat-nav-list>
+      <mat-button-toggle-group
+        style="width: 100%; border: 0; margin-top: 50px;"
+        vertical
+        #group="matButtonToggleGroup"
+        [disabled]="checkingAvailability"
+        (change)="onModelChange($event.value)"
+      >
+        <mat-button-toggle value="AmBERT" checked> AmBERT </mat-button-toggle>
+        <mat-button-toggle value="LSTM"> LSTM </mat-button-toggle>
+      </mat-button-toggle-group>
       <mat-card *ngIf="predictingAll">
         <mat-card-header>
           <mat-card-subtitle>Running predictions</mat-card-subtitle>
-          <mat-card-title>{{ currentlyPredictedSequence.name }}</mat-card-title>
+          <mat-card-title>{{ currentlyPredictedSequence }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <p>{{ currentlyPredictedIndex }}/{{ totalPredictions }}</p>
@@ -43,13 +53,43 @@
       <mat-card *ngIf="predictingSingle">
         <mat-card-header>
           <mat-card-subtitle>Running prediction</mat-card-subtitle>
-          <mat-card-title>{{ currentlyPredictedSequence.name }}</mat-card-title>
+          <mat-card-title>{{ currentlyPredictedSequence }}</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <mat-divider></mat-divider>
         </mat-card-content>
         <mat-card-footer>
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </mat-card-footer>
+      </mat-card>
+      <mat-card *ngIf="savingWorkspace">
+        <mat-card-header>
+          <mat-card-subtitle>Saving changes</mat-card-subtitle>
+          <mat-card-title>{{ currentlyPredictedSequence }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-divider></mat-divider>
+        </mat-card-content>
+        <mat-card-footer>
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </mat-card-footer>
+      </mat-card>
+      <mat-card *ngIf="checkingAvailability || connectionErrorText">
+        <mat-card-header>
+          <mat-card-subtitle>Checking model availability</mat-card-subtitle>
+          <mat-card-title>{{ currentlySelectedModel }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <span *ngIf="connectionErrorText" style="color: red">{{
+            connectionErrorText
+          }}</span>
+          <mat-divider></mat-divider>
+        </mat-card-content>
+        <mat-card-footer>
+          <mat-progress-bar
+            *ngIf="!connectionErrorText"
+            mode="indeterminate"
+          ></mat-progress-bar>
         </mat-card-footer>
       </mat-card>
     </mat-sidenav>
@@ -63,7 +103,11 @@
           multiTemplateDataRows
         >
           <ng-container matColumnDef="expand">
-            <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+            <th mat-header-cell *matHeaderCellDef>
+              <button mat-icon-button (click)="toggleExpand()">
+                <mat-icon>sort</mat-icon>
+              </button>
+            </th>
             <td mat-cell *matCellDef="let element">
               <button
                 mat-icon-button
@@ -106,7 +150,10 @@
                 color="primary"
                 (click)="predict(element)"
                 [disabled]="
-                  predictingAll || predictingSingle || predictionExists(element)
+                  processRunning() ||
+                  checkingAvailability ||
+                  connectionErrorText ||
+                  predictionExists(element)
                 "
               >
                 <mat-icon style="margin: 0">youtube_searched_for</mat-icon>
@@ -117,7 +164,7 @@
                 title="Edit"
                 color="primary"
                 (click)="openDialog(element.name, element.value, element.id)"
-                [disabled]="predictingAll || predictingSingle"
+                [disabled]="processRunning()"
               >
                 <mat-icon style="margin: 0">edit</mat-icon>
               </button>
@@ -127,7 +174,7 @@
                 title="Delete"
                 color="primary"
                 (click)="deleteSequence(element.id)"
-                [disabled]="predictingAll || predictingSingle"
+                [disabled]="processRunning()"
               >
                 <mat-icon style="margin: 0">delete</mat-icon>
               </button>
@@ -137,7 +184,9 @@
             <th mat-header-cell *matHeaderCellDef>Notes</th>
             <td mat-cell *matCellDef="let element">
               <p *ngIf="element.edited">Edited by user</p>
-              <p *ngIf="element.value.length < 40">Sequence length may be too short for this model</p>
+              <p *ngIf="element.value.length < 40">
+                Sequence length may be too short for this model
+              </p>
             </td>
           </ng-container>
 
@@ -147,9 +196,7 @@
               *matCellDef="let element"
               [attr.colspan]="displayedColumns.length"
             >
-              <div *ngIf="element.expanded"
-                class="element-detail"
-              >
+              <div *ngIf="element.expanded" class="element-detail">
                 <span class="element-header" style="margin-top: 10px">
                   1--------10--------20--------30--------40
                 </span>

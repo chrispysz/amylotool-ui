@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
@@ -75,6 +76,7 @@ import { NoSanitizePipe } from './utils/no-sanitize.pipe';
     MatProgressSpinnerModule,
     MatStepperModule,
     MatSnackBarModule,
+    MatButtonToggleModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
