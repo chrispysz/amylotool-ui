@@ -30,6 +30,7 @@ tr.detail {
   margin: 0 5px;
 }
 
+
 .mat-column-expand {
   width: 5%;
 }
@@ -41,7 +42,7 @@ tr.detail {
 .mat-table {
   display: block;
   overflow: auto;
-  max-height: 800px;
+  min-height: 500px;
 }
 
 .mat-mdc-row .mat-mdc-cell {
@@ -51,6 +52,11 @@ tr.detail {
 .mat-mdc-row:hover .mat-mdc-cell {
   background-color: gainsboro;
 }
+
+mat-form-field {
+  width: 100%;
+}
+  
 
 :host {
   display: block;

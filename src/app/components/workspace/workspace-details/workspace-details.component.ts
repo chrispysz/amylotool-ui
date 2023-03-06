@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -19,20 +19,11 @@ import { PredictionService } from 'src/app/services/prediction.service';
 import { Workspace } from 'src/app/models/workspace';
 import { serverTimestamp } from '@angular/fire/firestore';
 import { Sequence } from 'src/app/models/sequence';
+import { concatMap, delay, from, Observable, tap, toArray } from 'rxjs';
 @Component({
   selector: 'app-workspace-details',
   templateUrl: './workspace-details.component.html',
   styleUrls: ['./workspace-details.component.scss'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export class WorkspaceDetailsComponent implements OnInit {
   private paginator: MatPaginator | undefined;
@@ -58,7 +49,13 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   loading = true;
 
-  predicting = false;
+  predictingSingle = false;
+
+  predictingAll = false;
+
+  currentlyPredictedIndex!: number;
+  totalPredictions!: number;
+  currentlyPredictedSequence!: Sequence;
 
   dataSource!: MatTableDataSource<any>;
 
@@ -68,7 +65,7 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   threshold!: number;
 
-  displayedColumns: string[] = ['expand', 'name', 'status', 'actions'];
+  displayedColumns: string[] = ['expand', 'name', 'status', 'actions', 'notes'];
 
   constructor(
     private readonly firebaseService: FirebaseService,
@@ -104,7 +101,7 @@ export class WorkspaceDetailsComponent implements OnInit {
     this.dataSource!.filter = filterValue.trim().toLowerCase();
   }
 
-  openDialog(identifier: string, sequence: string): void {
+  openDialog(identifier: string, sequence: string, id: string): void {
     const dialogRef = this.dialog.open(SequenceDialogComponent, {
       data: { identifier: identifier, sequence: sequence },
       width: '600px',
@@ -114,7 +111,7 @@ export class WorkspaceDetailsComponent implements OnInit {
       if (!identifier && !sequence) {
         this.addSequence(result);
       } else {
-        this.updateSequence(result);
+        this.updateSequence(result, id);
       }
     });
   }
@@ -125,18 +122,37 @@ export class WorkspaceDetailsComponent implements OnInit {
       name: result[0],
       value: result[1],
       predictLogs: [],
+      edited: false,
     };
     this.workspace.sequences.push(newSequence);
     this.saveChanges();
   }
 
-  updateSequence(result: any) {
-    console.log(result.identifier);
-    console.log(result.sequence);
+  updateSequence(result: any, id: string) {
+    let sequence = this.workspace.sequences.find((s) => s.id == id)!;
+    sequence.name = result[0];
+    sequence.value = result[1];
+    sequence.predictLogs = [];
+    sequence.edited = true;
+    this.saveChanges();
+  }
+
+  deleteSequence(id: string) {
+    if (
+      confirm(
+        `Are you sure you want to delete this sequence? This action cannot be undone.`
+      )
+    ) {
+      this.workspace.sequences = this.workspace.sequences.filter(
+        (s) => s.id != id
+      );
+      this.saveChanges();
+    }
   }
 
   predict(sequence: Sequence) {
-    this.predicting = true;
+    this.predictingSingle = true;
+    this.currentlyPredictedSequence = sequence;
     let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
     this.predictionService
       .predictFull('AmBERT', sequence.value)
@@ -146,6 +162,45 @@ export class WorkspaceDetailsComponent implements OnInit {
           data: response.results,
         });
         this.saveChanges();
+      });
+  }
+
+  predictWithoutSave(sequence: Sequence): Observable<any> {
+    let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
+    this.currentlyPredictedSequence = seq;
+    return this.predictionService.predictFull('AmBERT', sequence.value).pipe(
+      tap((response) => {
+        seq.predictLogs.push({
+          model: 'AmBERT',
+          data: response.results,
+        });
+      })
+    );
+  }
+
+  predictAll() {
+    this.predictingAll = true;
+    let clearSequences = this.workspace.sequences.filter(
+      (s) => !this.predictionExists(s)
+    );
+    if (clearSequences.length == 0) {
+      this.predictingAll = false;
+      alert('All sequences have already been predicted.');
+      return;
+    }
+
+    this.currentlyPredictedIndex = 0;
+    this.totalPredictions = clearSequences.length;
+
+    from(clearSequences)
+      .pipe(
+        concatMap((sequence) => this.predictWithoutSave(sequence)),
+        tap(() => (this.currentlyPredictedIndex += 1))
+      )
+      .subscribe(() => {
+        if (this.currentlyPredictedIndex == this.totalPredictions) {
+          this.saveChanges();
+        }
       });
   }
 
@@ -175,13 +230,17 @@ export class WorkspaceDetailsComponent implements OnInit {
           dbRef.lastModified = serverTimestamp();
           this.firebaseService.updateWorkspaceRef(dbRef).then(() => {
             this.refreshSequences();
-            this.predicting = false;
+            this.predictingSingle = false;
+            this.predictingAll = false;
           });
         });
     });
   }
 
   getColoredRepresentation(sequence: Sequence) {
+    if (!sequence.predictLogs.length) {
+      return sequence.value;
+    }
     const coloredIndexes = Array(sequence.value.length).fill(false);
     sequence.predictLogs.forEach((log: any) => {
       if (log.model == 'AmBERT') {
@@ -222,5 +281,6 @@ export class WorkspaceDetailsComponent implements OnInit {
         });
       }
     });
+    this.dataSource = new MatTableDataSource(this.workspace.sequences);
   }
 }

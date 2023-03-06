@@ -4,4 +4,5 @@ export interface Sequence {
   name: string;
   value: string;
   predictLogs: PredictLog[];
+  edited: boolean;
 }

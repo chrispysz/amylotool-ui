@@ -93,6 +93,7 @@ export class WorkspaceAddComponent implements OnInit {
               value: sequence.sequence,
               status: 'PENDING',
               predictLogs: [],
+              edited: false,
             };
           })
         : [],
