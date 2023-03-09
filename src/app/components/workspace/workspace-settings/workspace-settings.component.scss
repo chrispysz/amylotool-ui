@@ -1,0 +1,10 @@
+button {
+  min-width: 7%;
+  margin-bottom: 25px;
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  column-gap: 15px;
+}

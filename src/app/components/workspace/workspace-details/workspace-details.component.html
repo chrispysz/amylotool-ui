@@ -13,6 +13,19 @@
           <mat-icon matListItemIcon>create_new_folder</mat-icon>
           <div matListItemTitle>Add sequence</div>
         </a>
+
+        <a
+          [disabled]="checkingAvailability"
+          mat-list-item
+          (click)="predictAll()"
+        >
+          <mat-icon matListItemIcon>find_replace</mat-icon>
+          <div matListItemTitle>Predict all</div>
+        </a>
+        <a mat-list-item disabled="true">
+          <mat-icon matListItemIcon>unarchive</mat-icon>
+          <div matListItemTitle>Export results</div>
+        </a>
         <a
           mat-list-item
           [routerLink]="'/workspaces/settings'"
@@ -22,13 +35,9 @@
           <mat-icon matListItemIcon>settings</mat-icon>
           <div matListItemTitle>Configure</div>
         </a>
-        <a mat-list-item (click)="predictAll()">
-          <mat-icon matListItemIcon>find_replace</mat-icon>
-          <div matListItemTitle>Predict all</div>
-        </a>
       </mat-nav-list>
       <mat-button-toggle-group
-        style="width: 100%; border: 0; margin-top: 50px;"
+        style="width: 100%; border: 0; margin-top: 50px"
         vertical
         #group="matButtonToggleGroup"
         [disabled]="checkingAvailability"
