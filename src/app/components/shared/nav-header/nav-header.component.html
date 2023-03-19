@@ -1,23 +1,10 @@
-<mat-toolbar color="primary">
-  <mat-toolbar-row>
-    <button mat-icon-button>
-      <mat-icon>stream</mat-icon>
-    </button>
-    <span>AmyloTool</span>
-    <span class="navbar-spacer"></span>
-    <a
-      mat-button
-      routerLinkActive="active"
-      ariaCurrentWhenActive="page"
-      routerLink="home"
-      >Home</a
-    >
-    <a
-      mat-button
-      routerLinkActive="active"
-      ariaCurrentWhenActive="page"
-      routerLink="workspaces"
-      >Workspaces</a
-    >
-  </mat-toolbar-row>
-</mat-toolbar>
+<p-menubar [model]="items">
+  <ng-template pTemplate="start">
+    <p-image
+      src="assets/images/am-min-g.png"
+      alt="Image"
+      width="100"
+      style="margin-right: 50px"
+    ></p-image>
+  </ng-template>
+</p-menubar>

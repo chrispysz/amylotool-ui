@@ -69,11 +69,11 @@ export class FirebaseService {
     }
   }
 
-  userInSessionStorage(): boolean {
+  private userInSessionStorage(): boolean {
     return JSON.parse(sessionStorage.getItem('user')!) ? true : false;
   }
 
-  userLoggedIn(): boolean {
+  private userLoggedIn(): boolean {
     return this.auth.currentUser ? true : false;
   }
 

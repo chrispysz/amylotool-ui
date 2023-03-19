@@ -1,24 +1,24 @@
-.mat-table {
-  display: block;
-  overflow: auto;
-  max-height: 800px;
-}
-.mat-mdc-row .mat-mdc-cell {
-  cursor: pointer;
-}
-
-.mat-mdc-row:hover .mat-mdc-cell {
-  background-color: gainsboro;
-}
-
-.v-centered {
+.table-header {
   display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-direction: column;
+  justify-content: space-between;
 }
 
-:host {
-  display: block;
-  width: 100%;
+.side-menu {
+  justify-content: center;
+  justify-items: center;
+}
+
+:host ::ng-deep {
+  .p-paginator {
+    .p-paginator-current {
+      margin-left: auto;
+    }
+  }
+  .p-tieredmenu {
+    width: 100%;
+  }
+
+  .grid {
+    margin: 0;
+  }
 }

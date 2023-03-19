@@ -41,6 +41,13 @@ import { SequenceDialogComponent } from './components/shared/sequence-dialog/seq
 import { WorkspaceSettingsComponent } from './components/workspace/workspace-settings/workspace-settings.component';
 import { NoSanitizePipe } from './utils/no-sanitize.pipe';
 
+import { MenubarModule } from 'primeng/menubar';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { TableModule } from 'primeng/table';
+import { DividerModule } from 'primeng/divider';
+import { InputTextModule } from 'primeng/inputtext';
+import { ImageModule } from 'primeng/image';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -79,6 +86,13 @@ import { NoSanitizePipe } from './utils/no-sanitize.pipe';
     MatSliderModule,
     MatSnackBarModule,
     MatButtonToggleModule,
+    MenubarModule,
+    TieredMenuModule,
+    TableModule,
+    DividerModule,
+    InputTextModule,
+    ImageModule,
+
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,

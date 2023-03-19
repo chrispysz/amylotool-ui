@@ -5,6 +5,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
+import { MenuItem } from 'primeng/api';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-workspace-list',
@@ -12,30 +14,13 @@ import { Router } from '@angular/router';
   styleUrls: ['./workspace-list.component.scss'],
 })
 export class WorkspaceListComponent implements OnInit {
-  private paginator: MatPaginator | undefined;
-  private sort: MatSort | undefined;
+  @ViewChild('dt') dt!: Table;
 
-  @ViewChild(MatSort) set matSort(ms: MatSort) {
-    this.sort = ms;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
-    this.paginator = mp;
-    this.setDataSourceAttributes();
-  }
-
-  setDataSourceAttributes() {
-    if (!this.dataSource || !this.paginator || !this.sort) {
-      return;
-    }
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
+  items: MenuItem[] = [];
 
   loading = true;
 
-  dataSource!: MatTableDataSource<WorkspaceDbReference>;
+  workspaces: WorkspaceDbReference[] = [];
 
   showFiller = false;
 
@@ -46,15 +31,21 @@ export class WorkspaceListComponent implements OnInit {
   displayedColumns: string[] = ['name', 'lastModified'];
 
   ngOnInit() {
+    this.items = [
+      {
+        label: 'Add workspace',
+        icon: 'pi pi-plus',
+        routerLink: 'add',
+      },
+    ];
     this.firebaseService.getAll().then((workspaces) => {
-      this.dataSource = new MatTableDataSource(workspaces);
+      this.workspaces = workspaces;
       this.loading = false;
     });
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  applyFilterGlobal($event: Event, stringVal: string) {
+    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
   getDateFromTimestamp(timestamp: any): Date | string {

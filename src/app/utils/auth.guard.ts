@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-    if (!this.auth.userInSessionStorage()) {
+    if (!this.auth.getUserId()) {
       window.alert('Unauthorized');
       this.router.navigate(['/welcome']);
     }
