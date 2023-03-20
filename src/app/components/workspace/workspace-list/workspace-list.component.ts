@@ -5,8 +5,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { Workspace } from 'src/app/models/workspace';
+import { serverTimestamp } from 'firebase/firestore';
 
 @Component({
   selector: 'app-workspace-list',
@@ -26,7 +29,9 @@ export class WorkspaceListComponent implements OnInit {
 
   constructor(
     private readonly firebaseService: FirebaseService,
-    readonly router: Router
+    readonly router: Router,
+    private clipboard: Clipboard,
+    private readonly messageService: MessageService
   ) {}
   displayedColumns: string[] = ['name', 'lastModified'];
 
@@ -41,6 +46,65 @@ export class WorkspaceListComponent implements OnInit {
     this.firebaseService.getAll().then((workspaces) => {
       this.workspaces = workspaces;
       this.loading = false;
+    });
+  }
+
+  copyToClipboard(workspace: WorkspaceDbReference) {
+    this.clipboard.copy(workspace.id);
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Workspace ID copied to clipboard',
+    });
+  }
+
+  duplicateWorkspace(workspace: WorkspaceDbReference) {
+    this.loading = true;
+    this.firebaseService.loadWorkspace(workspace.id).then((workspace) => {
+      let userId = this.firebaseService.getUserId();
+      let workspaceId = Date.now().toString();
+
+      let newWorkspace: Workspace = {
+        id: workspaceId,
+        name: workspace.name + ' (copy)',
+        sequences: workspace.sequences,
+      };
+      let workspaceDbReference: WorkspaceDbReference = {
+        id: workspaceId,
+        userId: userId,
+        name: workspace.name + ' (copy)',
+        threshold: 0.5,
+        lastModified: serverTimestamp(),
+      };
+
+      this.firebaseService
+        .uploadWorkspace(
+          new Blob([JSON.stringify(newWorkspace)], {
+            type: 'application/json',
+          }),
+          workspaceId
+        )
+        .then(() => {
+          this.firebaseService
+            .addWorkspaceRef(workspaceDbReference)
+            .then(() => {
+              this.workspaces.push(workspaceDbReference);
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: `Workspace ${workspace.name} duplicated`,
+              });
+              this.loading = false;
+            })
+            .catch(() => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Workspace ${workspace.name} could not be duplicated`,
+              });
+              this.loading = false;
+            });
+        });
     });
   }
 

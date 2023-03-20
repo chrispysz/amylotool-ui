@@ -8,6 +8,15 @@
   justify-items: center;
 }
 
+.hover {
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  column-gap: 20px;
+}
+
 :host ::ng-deep {
   .p-paginator {
     .p-paginator-current {

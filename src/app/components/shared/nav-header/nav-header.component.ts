@@ -20,9 +20,14 @@ export class NavHeaderComponent implements OnInit {
         routerLink: 'home',
       },
       {
-        label: 'Workspaces',
+        label: 'Your Workspaces',
         icon: 'pi pi-folder',
         routerLink: 'workspaces',
+      },
+      {
+        label: 'View as guest',
+        icon: 'pi pi-eye',
+        routerLink: 'visit/details',
       },
     ];
   }

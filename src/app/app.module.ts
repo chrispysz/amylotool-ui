@@ -47,6 +47,12 @@ import { TableModule } from 'primeng/table';
 import { DividerModule } from 'primeng/divider';
 import { InputTextModule } from 'primeng/inputtext';
 import { ImageModule } from 'primeng/image';
+import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+import {ToastModule} from 'primeng/toast';
+import {CardModule} from 'primeng/card';
+import { VisitDetailsComponent } from './components/visit/visit-details/visit-details.component';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
   declarations: [
@@ -61,6 +67,7 @@ import { ImageModule } from 'primeng/image';
     SequenceDialogComponent,
     WorkspaceSettingsComponent,
     NoSanitizePipe,
+    VisitDetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -92,6 +99,10 @@ import { ImageModule } from 'primeng/image';
     DividerModule,
     InputTextModule,
     ImageModule,
+    ButtonModule,
+    DialogModule,
+    ToastModule,
+    CardModule,
 
     FormsModule,
     ReactiveFormsModule,
@@ -102,7 +113,7 @@ import { ImageModule } from 'primeng/image';
     provideAuth(() => getAuth()),
     provideStorage(() => getStorage()),
   ],
-  providers: [],
+  providers: [MessageService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

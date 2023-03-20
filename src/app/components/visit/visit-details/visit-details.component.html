@@ -1,0 +1,6 @@
+<p-card>
+  <form [formGroup]="idForm" (ngSubmit)="onSubmit()">
+    <input type="text" pInputText formControlName="id" placeholder="Workspace ID"/>
+    <p-button type="submit" label="Submit"></p-button>
+  </form>
+</p-card>

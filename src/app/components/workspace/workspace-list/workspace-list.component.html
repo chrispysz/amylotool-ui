@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="grid" style="margin-right: 0">
   <div class="col-fixed side-menu" style="width: 200px; padding: 0">
     <p-image
@@ -40,21 +41,34 @@
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="name" style="width: 70%">
+          <th pSortableColumn="name" style="width: 60%">
             Name <p-sortIcon field="name"></p-sortIcon>
           </th>
-          <th pSortableColumn="lastModified" style="width: 30%">
+          <th style="width: 20%">
+            Actions <p-sortIcon field="actions"></p-sortIcon>
+          </th>
+          <th pSortableColumn="lastModified" style="width: 20%">
             Last modified <p-sortIcon field="lastModified"></p-sortIcon>
           </th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-workspace>
-        <tr
-          [routerLink]="['/workspaces/details']"
-          [queryParams]="{ id: workspace.id }"
-          queryParamsHandling="merge"
-        >
-          <td>{{ workspace.name }}</td>
+        <tr>
+          <td
+            class="hover"
+            [routerLink]="['/workspaces/details']"
+            [queryParams]="{ id: workspace.id }"
+            queryParamsHandling="merge"
+          >
+            {{ workspace.name }}
+          </td>
+          <td>
+            <div class="actions">
+              <p-button icon="pi pi-pencil" title="Edit" [loading]="false"></p-button>
+              <p-button icon="pi pi-clone" title="Duplicate" [loading]="false" (onClick)="duplicateWorkspace(workspace)"></p-button>
+              <p-button icon="pi pi-upload" title="Share" [loading]="false" (onClick)="copyToClipboard(workspace)"></p-button>
+            </div>
+          </td>
           <td>{{ getDateFromTimestamp(workspace.lastModified) }}</td>
         </tr>
       </ng-template>
