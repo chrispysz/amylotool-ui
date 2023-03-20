@@ -6,13 +6,7 @@ tr.detail {
   border-bottom-width: 0;
 }
 
-.element-detail {
-  overflow-x: auto;
-  overflow-wrap: break-word;
-  display: flex;
-  flex-direction: column;
-  width: 80vw;
-}
+
 
 .element-header {
   font-family: "Roboto Mono", monospace;
@@ -24,6 +18,13 @@ tr.detail {
   font-family: "Roboto Mono", monospace;
   max-width: 42ch;
   margin-left: 80px;
+}
+.element-detail {
+  overflow-x: auto;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
 }
 
 .action-button {

@@ -1,11 +1,13 @@
 <p-toast></p-toast>
+<p-confirmDialog header="Duplicate workspace" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 <div class="grid" style="margin-right: 0">
   <div class="col-fixed side-menu" style="width: 200px; padding: 0">
-    <p-image
-      src="assets/images/AmyloTool.png"
-      alt="Image"
-      width="200"
-    ></p-image>
+    <p-divider>
+      <div class="inline-flex align-items-center">
+        <i class="pi pi-desktop mr-2"></i>
+        <b>Actions</b>
+      </div>
+    </p-divider>
     <p-tieredMenu [model]="items"></p-tieredMenu>
   </div>
   <div class="col" style="border-left: 1px solid; padding: 0">
@@ -65,8 +67,8 @@
           <td>
             <div class="actions">
               <p-button icon="pi pi-pencil" title="Edit" [loading]="false"></p-button>
-              <p-button icon="pi pi-clone" title="Duplicate" [loading]="false" (onClick)="duplicateWorkspace(workspace)"></p-button>
-              <p-button icon="pi pi-upload" title="Share" [loading]="false" (onClick)="copyToClipboard(workspace)"></p-button>
+              <p-button icon="pi pi-copy" title="Duplicate" [loading]="false" (onClick)="duplicateWorkspace(workspace)"></p-button>
+              <p-button icon="pi pi-users" title="Share" [loading]="false" (onClick)="copyToClipboard(workspace)"></p-button>
             </div>
           </td>
           <td>{{ getDateFromTimestamp(workspace.lastModified) }}</td>

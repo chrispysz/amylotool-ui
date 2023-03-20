@@ -53,6 +53,9 @@ import {ToastModule} from 'primeng/toast';
 import {CardModule} from 'primeng/card';
 import { VisitDetailsComponent } from './components/visit/visit-details/visit-details.component';
 import { MessageService } from 'primeng/api';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
+import {SelectButtonModule} from 'primeng/selectbutton';
 
 @NgModule({
   declarations: [
@@ -103,6 +106,9 @@ import { MessageService } from 'primeng/api';
     DialogModule,
     ToastModule,
     CardModule,
+    ConfirmDialogModule,
+    SelectButtonModule,
+
 
     FormsModule,
     ReactiveFormsModule,
@@ -113,7 +119,7 @@ import { MessageService } from 'primeng/api';
     provideAuth(() => getAuth()),
     provideStorage(() => getStorage()),
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

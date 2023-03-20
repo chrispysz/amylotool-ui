@@ -1,6 +1,141 @@
-<p-card>
-  <form [formGroup]="idForm" (ngSubmit)="onSubmit()">
-    <input type="text" pInputText formControlName="id" placeholder="Workspace ID"/>
-    <p-button type="submit" label="Submit"></p-button>
-  </form>
-</p-card>
+<p-dialog header="Export (JSON)" [(visible)]="exportVisible">
+  This is the JSON representation of the workspace. Click the button below to
+  copy it to your clipboard.
+  <pre>{{ workspace | json }}</pre>
+</p-dialog>
+<div *ngIf="detailView; else submit">
+  <div class="grid" style="margin-right: 0">
+    <div class="col-fixed side-menu" style="width: 200px; padding: 0">
+      <p-divider>
+        <div class="inline-flex align-items-center">
+          <i class="pi pi-desktop mr-2"></i>
+          <b>Actions</b>
+        </div>
+      </p-divider>
+      <p-tieredMenu [model]="sideMenuItems"></p-tieredMenu>
+      <p-divider>
+        <div class="inline-flex align-items-center">
+          <i class="pi pi-server mr-2"></i>
+          <b>Models</b>
+        </div>
+      </p-divider>
+      <p-tieredMenu [model]="modelItems"></p-tieredMenu>
+    </div>
+    <div class="col" style="border-left: 1px solid; padding: 0">
+      <p-table
+        #dt
+        [value]="workspace.sequences"
+        dataKey="id"
+        styleClass="p-datatable-striped"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[5, 10, 25, 50, 100]"
+        [loading]="tableLoading"
+        [paginator]="true"
+        [paginatorPosition]="'both'"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [filterDelay]="0"
+        [globalFilterFields]="['name', 'value']"
+      >
+        <ng-template pTemplate="caption">
+          <div class="table-header">
+            <span class="p-input-icon-left" style="align-self: flex-start">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="applyFilterGlobal($event, 'contains')"
+                placeholder="Search"
+              />
+            </span>
+            <span>Current model: {{ currentlySelectedModel }}</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5%"></th>
+            <th pSortableColumn="name" style="width: 50%">
+              Name <p-sortIcon field="name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="status" style="width: 10%">
+              Status <p-sortIcon field="status"></p-sortIcon>
+            </th>
+            <th pSortableColumn="note" style="width: 35%">
+              System note <p-sortIcon field="note"></p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-sequence let-expanded="expanded">
+          <tr>
+            <td>
+              <button
+                type="button"
+                pButton
+                pRipple
+                title="Expand"
+                [pRowToggler]="sequence"
+                class="p-button-text p-button-rounded p-button-plain"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              ></button>
+            </td>
+            <td>
+              {{ sequence.name }}
+            </td>
+            <td>
+              <mat-icon *ngIf="!sequence.status">question_mark</mat-icon>
+              <mat-icon
+                style="color: green"
+                *ngIf="sequence.status === 'POSITIVE'"
+                >check</mat-icon
+              >
+              <mat-icon
+                style="color: red"
+                *ngIf="sequence.status === 'NEGATIVE'"
+                >close</mat-icon
+              >
+            </td>
+            <td>
+              {{ sequence.note }}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-sequence>
+          <tr>
+            <td colspan="4">
+              <div class="element-detail">
+                <span class="element-header" style="margin-top: 10px">
+                  1--------10--------20--------30--------40
+                </span>
+                <span
+                  class="element-description"
+                  [innerHTML]="getColoredRepresentation(sequence) | noSanitize"
+                  style="margin-bottom: 10px"
+                >
+                </span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+<ng-template #submit>
+  <p-card>
+    <form [formGroup]="idForm" (ngSubmit)="onSubmit()">
+      <input
+        type="text"
+        pInputText
+        formControlName="id"
+        placeholder="Workspace ID"
+      />
+      <p-button
+        type="submit"
+        label="Submit"
+        icon="pi pi-search"
+        [loading]="fetchLoading"
+        [disabled]="idForm.invalid"
+      ></p-button>
+    </form>
+  </p-card>
+</ng-template>

@@ -6,3 +6,16 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mat-icon {
     vertical-align: middle;
 }
+
+.grid {
+    margin: 0;
+}
+
+:host ::ng-deep {
+    .p-tieredmenu {
+        margin-bottom: 60px;
+    }
+    .p-divider{
+        margin-top: 20px;
+    }
+}

@@ -1,0 +1,46 @@
+.element-description {
+  font-family: "Roboto Mono", monospace;
+  max-width: 42ch;
+  margin-left: 80px;
+}
+.element-detail {
+  overflow-x: auto;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+}
+.element-header {
+  font-family: "Roboto Mono", monospace;
+  max-width: 43ch;
+  margin-left: 80px;
+}
+
+.table-header {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+  }
+
+:host ::ng-deep {
+    .p-dialog {
+        max-width: 800px;
+        max-height: 800px;
+    }
+
+    .p-paginator {
+        .p-paginator-current {
+          margin-left: auto;
+        }
+      }
+    
+}

@@ -1,9 +1,9 @@
 <p-menubar [model]="items">
-  <ng-template pTemplate="start">
-    <p-image
-      src="assets/images/am-min-g.png"
-      alt="Image"
-      width="80"
-    ></p-image>
-  </ng-template>
+  <ng-template pTemplate="end">
+    <p-selectButton [options]="stateOptions" [(ngModel)]="value1" optionLabel="icon" optionValue="value" (onChange)="changeTheme($event)">
+      <ng-template let-item>
+          <i style="margin: auto;" [class]="item.icon"></i>
+      </ng-template>
+  </p-selectButton>
+</ng-template>
 </p-menubar>
