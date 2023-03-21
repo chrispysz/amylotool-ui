@@ -25,22 +25,25 @@
 }
 
 .table-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    width: 100%;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+}
 
 :host ::ng-deep {
-    .p-dialog {
-        max-width: 800px;
-        max-height: 800px;
-    }
+  .p-dialog {
+    max-width: 800px;
+    max-height: 800px;
+  }
 
-    .p-paginator {
-        .p-paginator-current {
-          margin-left: auto;
-        }
-      }
-    
+  .p-paginator {
+    .p-paginator-current {
+      margin-left: auto;
+    }
+  }
+  .p-card {
+    max-width: 30vw;
+    margin: 50px auto;
+  }
 }

@@ -66,7 +66,7 @@ export class WorkspaceListComponent implements OnInit {
         this.loading = true;
         this.firebaseService.loadWorkspace(workspace.id).then((workspace) => {
           let userId = this.firebaseService.getUserId();
-          let workspaceId = Date.now().toString();
+          let workspaceId = crypto.randomUUID();
 
           let newWorkspace: Workspace = {
             id: workspaceId,

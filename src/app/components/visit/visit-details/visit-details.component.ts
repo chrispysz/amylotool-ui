@@ -69,7 +69,10 @@ export class VisitDetailsComponent {
   ];
 
   idForm = this.fb.group({
-    id: ['', [Validators.required, Validators.minLength(5)]],
+    id: [
+      '',
+      [Validators.required, Validators.minLength(1), Validators.maxLength(50)],
+    ],
   });
 
   constructor(

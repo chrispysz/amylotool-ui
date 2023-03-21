@@ -80,7 +80,7 @@ export class WorkspaceAddComponent implements OnInit {
   onSubmit() {
     this.stepperLoading = true;
     let userId = this.firebaseService.getUserId();
-    let workspaceId = Date.now().toString();
+    let workspaceId = crypto.randomUUID();
 
     let workspace: Workspace = {
       id: workspaceId,

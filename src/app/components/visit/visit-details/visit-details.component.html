@@ -121,20 +121,29 @@
   </div>
 </div>
 <ng-template #submit>
-  <p-card>
-    <form [formGroup]="idForm" (ngSubmit)="onSubmit()">
+  <p-card
+    header="Guest"
+    subheader="Here you can see the readonly version of any workspace with given ID"
+  >
+    <form
+      [formGroup]="idForm"
+      (ngSubmit)="onSubmit()"
+      style="display: flex; flex-direction: column; row-gap: 50px"
+    >
       <input
         type="text"
         pInputText
         formControlName="id"
         placeholder="Workspace ID"
       />
+
       <p-button
         type="submit"
         label="Submit"
         icon="pi pi-search"
         [loading]="fetchLoading"
         [disabled]="idForm.invalid"
+        style="align-self: flex-end"
       ></p-button>
     </form>
   </p-card>
