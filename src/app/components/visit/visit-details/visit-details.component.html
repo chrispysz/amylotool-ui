@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <p-dialog header="Export (JSON)" [(visible)]="exportVisible">
   This is the JSON representation of the workspace. Click the button below to
   copy it to your clipboard.
@@ -143,7 +144,6 @@
         icon="pi pi-search"
         [loading]="fetchLoading"
         [disabled]="idForm.invalid"
-        style="align-self: flex-end"
       ></p-button>
     </form>
   </p-card>

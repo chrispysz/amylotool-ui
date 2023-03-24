@@ -29,6 +29,7 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-workspace-details',
   templateUrl: './workspace-details.component.html',
@@ -93,29 +94,42 @@ export class WorkspaceDetailsComponent implements OnInit {
     private readonly predictionService: PredictionService,
     readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      this.firebaseService.loadWorkspace(params['id']).then((workspace) => {
-        this.workspace = workspace;
-        this.workspace.sequences.map((element) => ({
-          ...element,
-          expanded: false,
-          status: '',
-        }));
-        this.firebaseService
-          .getWorkspaceRef(this.workspace.id)
-          .then((dbRef) => {
-            this.threshold = dbRef.threshold;
-            this.refreshSequences();
-            this.dataSource = new MatTableDataSource(this.workspace.sequences);
-            this.loading = false;
-            this.checkingAvailability = true;
-            this.checkCurrentModelAvailability(this.currentlySelectedModel);
+      this.firebaseService
+        .loadWorkspace(params['id'])
+        .then((workspace) => {
+          this.workspace = workspace;
+          this.workspace.sequences.map((element) => ({
+            ...element,
+            expanded: false,
+            status: '',
+          }));
+          this.firebaseService
+            .getWorkspaceRef(this.workspace.id)
+            .then((dbRef) => {
+              this.threshold = dbRef.threshold;
+              this.refreshSequences();
+              this.dataSource = new MatTableDataSource(
+                this.workspace.sequences
+              );
+              this.loading = false;
+              this.checkingAvailability = true;
+              this.checkCurrentModelAvailability(this.currentlySelectedModel);
+            });
+        })
+        .catch((error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Workspace could not be loaded. Check if the provided ID is correct`,
           });
-      });
+          console.error(error);
+        });
     });
   }
 
@@ -154,7 +168,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   onModelChange(model: string) {
     this.checkingAvailability = false;
     this.connectionErrorText = '';
-    this.currentlySelectedModel = model; 
+    this.currentlySelectedModel = model;
     this.refreshSequences();
     this.checkingAvailability = true;
     this.checkCurrentModelAvailability(model);
@@ -268,7 +282,11 @@ export class WorkspaceDetailsComponent implements OnInit {
     from(clearSequences)
       .pipe(
         concatMap((sequence) => this.predictWithoutSave(sequence)),
-        tap(() => (this.currentlyPredictedIndex += 1))
+        tap(() => (this.currentlyPredictedIndex += 1)),
+        catchError((err) => {
+          console.error(err);
+          return of(null);
+        })
       )
       .subscribe(() => {
         if (this.currentlyPredictedIndex - 1 == this.totalPredictions) {

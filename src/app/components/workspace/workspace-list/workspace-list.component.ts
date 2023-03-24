@@ -99,15 +99,16 @@ export class WorkspaceListComponent implements OnInit {
                     detail: `Workspace ${workspace.name} duplicated`,
                   });
                   this.loading = false;
-                })
-                .catch(() => {
-                  this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `Workspace ${workspace.name} could not be duplicated`,
-                  });
-                  this.loading = false;
                 });
+            })
+            .catch((error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Workspace ${workspace.name} could not be duplicated`,
+              });
+              console.error(error);
+              this.loading = false;
             });
         });
       },

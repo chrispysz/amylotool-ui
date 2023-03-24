@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Sequence } from 'src/app/models/sequence';
 import { Workspace } from 'src/app/models/workspace';
@@ -60,6 +60,13 @@ export class VisitDetailsComponent {
       },
     },
     {
+      label: 'ProteinBERT',
+      command: () => {
+        this.currentlySelectedModel = 'ProteinBERT';
+        this.refreshSequences();
+      },
+    },
+    {
       label: 'LSTM',
       command: () => {
         this.currentlySelectedModel = 'LSTM';
@@ -78,7 +85,8 @@ export class VisitDetailsComponent {
   constructor(
     private fb: FormBuilder,
     private readonly wService: FirebaseService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly messageService: MessageService
   ) {}
 
   applyFilterGlobal($event: Event, stringVal: string) {
@@ -87,21 +95,32 @@ export class VisitDetailsComponent {
 
   onSubmit() {
     this.fetchLoading = true;
-    this.wService.loadWorkspace(this.idForm.value.id!).then((workspace) => {
-      this.workspace = workspace;
+    this.wService
+      .loadWorkspace(this.idForm.value.id!)
+      .then((workspace) => {
+        this.workspace = workspace;
 
-      this.workspace.sequences.map((element) => ({
-        ...element,
-        status: '',
-        note: '',
-      }));
-      this.wService.getWorkspaceRef(this.workspace.id).then((dbRef) => {
-        this.threshold = dbRef.threshold;
-        this.refreshSequences();
+        this.workspace.sequences.map((element) => ({
+          ...element,
+          status: '',
+          note: '',
+        }));
+        this.wService.getWorkspaceRef(this.workspace.id).then((dbRef) => {
+          this.threshold = dbRef.threshold;
+          this.refreshSequences();
+          this.fetchLoading = false;
+          this.detailView = true;
+        });
+      })
+      .catch((error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Workspace could not be loaded. Check if the provided ID is correct`,
+        });
+        console.error(error);
         this.fetchLoading = false;
-        this.detailView = true;
       });
-    });
   }
 
   predictionExists(sequence: Sequence) {

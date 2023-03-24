@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/internal/Observable';
 export class PredictionService {
   constructor(private readonly httpClient: HttpClient) {}
 
-  private readonly path = 'https://amylotool-backend.herokuapp.com/predict';
+  private readonly path = 'https://amylotool-backend.azurewebsites.net/predict';
 
   predictFull(model: string, sequence: string): Observable<any> {
     let data = { model: model, sequence: sequence };

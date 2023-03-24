@@ -44,6 +44,7 @@
         (change)="onModelChange($event.value)"
       >
         <mat-button-toggle value="AmBERT" checked> AmBERT </mat-button-toggle>
+        <mat-button-toggle value="ProteinBERT"> ProteinBERT </mat-button-toggle>
         <mat-button-toggle value="LSTM"> LSTM </mat-button-toggle>
       </mat-button-toggle-group>
       <mat-card *ngIf="predictingAll">
