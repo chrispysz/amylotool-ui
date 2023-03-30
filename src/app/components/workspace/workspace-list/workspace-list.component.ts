@@ -5,7 +5,12 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
-import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import {
+  ConfirmationService,
+  ConfirmEventType,
+  MenuItem,
+  MessageService,
+} from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Workspace } from 'src/app/models/workspace';

@@ -1,20 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FirebaseService } from 'src/app/services/firebase.service';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DataHolderService } from 'src/app/services/data-holder.service';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-import { MatDialog } from '@angular/material/dialog';
-import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { PredictionService } from 'src/app/services/prediction.service';
 import { Workspace } from 'src/app/models/workspace';
 import { serverTimestamp } from '@angular/fire/firestore';
@@ -29,36 +16,26 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import {
+  ConfirmationService,
+  ConfirmEventType,
+  MenuItem,
+  MessageService,
+} from 'primeng/api';
+import { Table } from 'primeng/table';
+import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import * as FileSaver from 'file-saver';
+
 @Component({
   selector: 'app-workspace-details',
   templateUrl: './workspace-details.component.html',
   styleUrls: ['./workspace-details.component.scss'],
 })
 export class WorkspaceDetailsComponent implements OnInit {
-  private paginator: MatPaginator | undefined;
-  private sort: MatSort | undefined;
+  @ViewChild('dt') dt!: Table;
 
-  @ViewChild(MatTable)
-  table!: MatTable<any>;
-
-  @ViewChild(MatSort) set matSort(ms: MatSort) {
-    this.sort = ms;
-    this.setDataSourceAttributes();
-  }
-
-  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
-    this.paginator = mp;
-    this.setDataSourceAttributes();
-  }
-
-  setDataSourceAttributes() {
-    if (!this.dataSource || !this.paginator || !this.sort) {
-      return;
-    }
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-  }
+  timeLeft = 0;
 
   allExpanded = false;
 
@@ -70,10 +47,12 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   predictingAll = false;
 
-  savingWorkspace = false;
+  tableLoading = false;
+  aligning = false;
 
   currentlyPredictedIndex!: number;
   totalPredictions!: number;
+  predictionPercentage: number = 100;
   currentlyPredictedSequence!: string;
 
   currentlySelectedModel = 'AmBERT';
@@ -87,15 +66,82 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   threshold!: number;
 
-  displayedColumns: string[] = ['expand', 'name', 'status', 'actions', 'notes'];
+  detailView = false;
+  fetchLoading = false;
+
+  exportVisible = false;
+  exportJSON = '';
+
+  selectedSequences: Sequence[] = [];
+
+  sideMenuItems: MenuItem[] = [
+    {
+      label: 'Download JSON',
+      icon: 'pi pi-download',
+      command: () => {
+        this.confirmationService.confirm({
+          message: `Are you sure that you want to download all the predictions for this workspace?`,
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            const blob = new Blob([JSON.stringify(this.workspace)], {
+              type: 'text/json',
+            });
+            FileSaver.saveAs(blob, 'data.json');
+          },
+          reject: () => {},
+        });
+      },
+    },
+    {
+      label: 'Advanced',
+      icon: 'pi pi-cog',
+      command: () => {
+        this.router.navigate(['/workspaces/settings'], {
+          queryParams: { id: this.workspace.id },
+        });
+      },
+    },
+    {
+      label: 'Exit',
+      icon: 'pi pi-times',
+      command: () => {
+        this.router.navigate(['']);
+      },
+    },
+  ];
+
+  modelItems: MenuItem[] = [
+    {
+      label: 'AmBERT',
+      command: () => {
+        this.currentlySelectedModel = 'AmBERT';
+        this.refreshSequences();
+      },
+    },
+    {
+      label: 'ProteinBERT',
+      command: () => {
+        this.currentlySelectedModel = 'ProteinBERT';
+        this.refreshSequences();
+      },
+    },
+    {
+      label: 'LSTM',
+      command: () => {
+        this.currentlySelectedModel = 'LSTM';
+        this.refreshSequences();
+      },
+    },
+  ];
 
   constructor(
     private readonly firebaseService: FirebaseService,
     private readonly predictionService: PredictionService,
     readonly router: Router,
     private readonly route: ActivatedRoute,
+    private readonly messageService: MessageService,
     private readonly dialog: MatDialog,
-    private readonly messageService: MessageService
+    private readonly confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
@@ -133,23 +179,6 @@ export class WorkspaceDetailsComponent implements OnInit {
     });
   }
 
-  toggleExpand() {
-    const skip = this.paginator!.pageSize * this.paginator!.pageIndex;
-    const pagedData = this.workspace.sequences
-      .filter((u, i) => i >= skip)
-      .filter((u, i) => i < this.paginator!.pageSize);
-    this.allExpanded = !this.allExpanded;
-    pagedData.forEach((element: any) => {
-      element.expanded = this.allExpanded;
-    });
-    this.table.renderRows();
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource!.filter = filterValue.trim().toLowerCase();
-  }
-
   openDialog(identifier: string, sequence: string, id: string): void {
     const dialogRef = this.dialog.open(SequenceDialogComponent, {
       data: { identifier: identifier, sequence: sequence },
@@ -163,6 +192,40 @@ export class WorkspaceDetailsComponent implements OnInit {
         this.updateSequence(result, id);
       }
     });
+  }
+
+  confirm1() {
+    this.confirmationService.confirm({
+      message: `Are you sure that you want to start the prediction for ${this.selectedSequences.length} sequences?`,
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.predictingAll = true;
+        let clearSequences = this.selectedSequences.filter(
+          (s) => !this.predictionExists(s)
+        );
+        if (clearSequences.length == 0) {
+          this.predictingAll = false;
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Prediction status',
+            detail: 'Nothing to predict',
+          });
+        } else {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Prediction status',
+            detail: 'Running...',
+          });
+          this.predictionPercentage = 0;
+          this.predictSelectedSequences(clearSequences);
+        }
+      },
+      reject: () => {},
+    });
+  }
+
+  applyFilterGlobal($event: Event, stringVal: string) {
+    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
   onModelChange(model: string) {
@@ -192,7 +255,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   }
 
   processRunning() {
-    return this.predictingAll || this.predictingSingle || this.savingWorkspace;
+    return this.predictingAll || this.predictingSingle || this.tableLoading;
   }
 
   addSequence(result: any) {
@@ -220,16 +283,21 @@ export class WorkspaceDetailsComponent implements OnInit {
     this.saveChanges();
   }
 
-  deleteSequence(id: string) {
+  backFromAlign() {
+    console.log('back from align');
+    this.aligning = false;
+  }
+
+  deleteSelectedSequences() {
     if (
       confirm(
-        `Are you sure you want to delete this sequence? This action cannot be undone.`
+        `Are you sure you want to delete ${this.selectedSequences.length} sequences from this workspace? This action cannot be undone.`
       )
     ) {
+      let selected = this.selectedSequences.map((s) => s.id);
       this.workspace.sequences = this.workspace.sequences.filter(
-        (s) => s.id != id
+        (s) => !selected.includes(s.id)
       );
-      this.dataSource = new MatTableDataSource(this.workspace.sequences);
       this.saveChanges();
     }
   }
@@ -245,7 +313,6 @@ export class WorkspaceDetailsComponent implements OnInit {
           model: this.currentlySelectedModel,
           data: response.results,
         });
-        this.dataSource = new MatTableDataSource(this.workspace.sequences);
         this.saveChanges();
       });
   }
@@ -265,19 +332,14 @@ export class WorkspaceDetailsComponent implements OnInit {
       );
   }
 
-  predictAll() {
-    this.predictingAll = true;
-    let clearSequences = this.workspace.sequences.filter(
-      (s) => !this.predictionExists(s)
-    );
-    if (clearSequences.length == 0) {
-      this.predictingAll = false;
-      alert('All sequences have already been predicted.');
-      return;
-    }
-
+  predictSelectedSequences(clearSequences: Sequence[]) {
     this.currentlyPredictedIndex = 1;
     this.totalPredictions = clearSequences.length;
+
+    let startTime = Date.now();
+    let endTime = Date.now();
+    let timeDiff = endTime - startTime;
+    let timeLeftArray: number[] = [];
 
     from(clearSequences)
       .pipe(
@@ -289,9 +351,23 @@ export class WorkspaceDetailsComponent implements OnInit {
         })
       )
       .subscribe(() => {
+        this.predictionPercentage = Math.round(
+          ((this.currentlyPredictedIndex - 1) / this.totalPredictions) * 100
+        );
+        endTime = Date.now();
+        timeDiff = endTime - startTime;
+        timeLeftArray.push(
+          Math.round(
+            ((timeDiff / this.currentlyPredictedIndex) *
+              (this.totalPredictions + 1 - this.currentlyPredictedIndex)) /
+              1000
+          )
+        );
+        this.timeLeft = Math.round(
+          timeLeftArray.reduce((a, b) => a + b, 0) / timeLeftArray.length
+        );
+        startTime = Date.now();
         if (this.currentlyPredictedIndex - 1 == this.totalPredictions) {
-          this.dataSource = new MatTableDataSource(this.workspace.sequences);
-
           this.saveChanges();
         }
       });
@@ -309,7 +385,7 @@ export class WorkspaceDetailsComponent implements OnInit {
     this.predictingSingle = false;
     this.predictingAll = false;
     this.currentlyPredictedSequence = '';
-    this.savingWorkspace = true;
+    this.tableLoading = true;
     this.firebaseService.getWorkspaceRef(this.workspace.id).then((dbRef) => {
       let savedWorkspace = {
         ...this.workspace,
@@ -329,11 +405,27 @@ export class WorkspaceDetailsComponent implements OnInit {
           dbRef.lastModified = serverTimestamp();
           this.firebaseService.updateWorkspaceRef(dbRef).then(() => {
             this.refreshSequences();
-
-            this.savingWorkspace = false;
+            this.tableLoading = false;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'OK',
+              detail: `Workspace changes have been saved`,
+            });
           });
         });
     });
+  }
+
+  duplicateSequence(sequence: Sequence) {
+    let newSequence: Sequence = {
+      id: crypto.randomUUID(),
+      name: sequence.name + ' (copy)',
+      value: sequence.value,
+      predictLogs: sequence.predictLogs,
+      edited: sequence.edited,
+    };
+    this.workspace.sequences.push(newSequence);
+    this.saveChanges();
   }
 
   getColoredRepresentation(sequence: Sequence) {
@@ -359,9 +451,9 @@ export class WorkspaceDetailsComponent implements OnInit {
     let coloredRepresentation = '';
     coloredIndexes.forEach((element, index) => {
       if (element) {
-        coloredRepresentation += `<span style="color:green">${sequence.value[index]}</span>`;
+        coloredRepresentation += `<span style="color:green; font-weight: bold">${sequence.value[index]}</span>`;
       } else {
-        coloredRepresentation += `<span style="color:red">${sequence.value[index]}</span>`;
+        coloredRepresentation += `${sequence.value[index]}`;
       }
     });
     return coloredRepresentation;

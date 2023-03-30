@@ -1,0 +1,25 @@
+.element-description {
+  font-family: "Roboto Mono", monospace;
+  max-width: 42ch;
+  margin-left: 20px;
+  font-size: 16px;
+}
+.element-detail {
+  overflow-x: auto;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+.element-header {
+  font-family: "Roboto Mono", monospace;
+  max-width: 43ch;
+  margin-left: 20px;
+  font-size: 16px;
+}
+
+:host ::ng-deep {
+  .p-button {
+    margin: 15px;
+  }
+}

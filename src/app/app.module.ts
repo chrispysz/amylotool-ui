@@ -47,15 +47,20 @@ import { TableModule } from 'primeng/table';
 import { DividerModule } from 'primeng/divider';
 import { InputTextModule } from 'primeng/inputtext';
 import { ImageModule } from 'primeng/image';
-import {ButtonModule} from 'primeng/button';
-import {DialogModule} from 'primeng/dialog';
-import {ToastModule} from 'primeng/toast';
-import {CardModule} from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { CardModule } from 'primeng/card';
 import { VisitDetailsComponent } from './components/visit/visit-details/visit-details.component';
 import { MessageService } from 'primeng/api';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {ConfirmationService} from 'primeng/api';
-import {SelectButtonModule} from 'primeng/selectbutton';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { WorkspaceAlignComponent } from './components/workspace/workspace-align/workspace-align.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +76,7 @@ import {SelectButtonModule} from 'primeng/selectbutton';
     WorkspaceSettingsComponent,
     NoSanitizePipe,
     VisitDetailsComponent,
+    WorkspaceAlignComponent,
   ],
   imports: [
     BrowserModule,
@@ -81,16 +87,12 @@ import {SelectButtonModule} from 'primeng/selectbutton';
     MatButtonModule,
     MatIconModule,
     MatGridListModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatTableModule,
     MatSidenavModule,
     MatFormFieldModule,
     MatDialogModule,
     MatInputModule,
     MatProgressBarModule,
     MatCardModule,
-    MatSnackBarModule,
     MatProgressSpinnerModule,
     MatStepperModule,
     MatSliderModule,
@@ -108,7 +110,12 @@ import {SelectButtonModule} from 'primeng/selectbutton';
     CardModule,
     ConfirmDialogModule,
     SelectButtonModule,
-
+    ProgressSpinnerModule,
+    InputTextareaModule,
+    ProgressBarModule,
+    ScrollPanelModule,
+    
+    
 
     FormsModule,
     ReactiveFormsModule,

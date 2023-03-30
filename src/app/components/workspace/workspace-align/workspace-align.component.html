@@ -1,0 +1,29 @@
+<p-button
+  icon="pi pi-arrow-circle-left"
+  title="Back"
+  (click)="backToTable()"
+  styleClass="p-button-rounded"
+></p-button>
+<div style="display: flex; flex-direction: row">
+  <div class="element-detail" *ngFor="let model of models">
+    <span style="margin-left: 20px; font-size: 20px">{{ model }}</span>
+    <span class="element-header" style="margin-top: 10px">
+      1--------10--------20--------30--------40
+    </span>
+  </div>
+</div>
+<p-scrollPanel [style]="{ height: '800px' }">
+  <div style="display: flex; flex-direction: row">
+    <div class="element-detail" *ngFor="let model of models">
+      <div style="display: flex; flex-direction: column">
+        <span
+          *ngFor="let sequence of sequences"
+          class="element-description"
+          [innerHTML]="getColoredRepresentation(sequence, model) | noSanitize"
+          style="margin-bottom: 10px"
+        >
+        </span>
+      </div>
+    </div>
+  </div>
+</p-scrollPanel>

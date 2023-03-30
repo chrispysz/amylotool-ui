@@ -217,6 +217,11 @@ export class FirebaseService {
     });
   }
 
+  getModelsDummy() {
+    return ['AmBERT', 'ProteinBERT', 'LSTM'];
+
+  }
+
   deleteWorkspaceRef(id: string) {
     return new Promise((resolve, reject) => {
       let docRef = doc(this.firestore, 'workspaces', id);

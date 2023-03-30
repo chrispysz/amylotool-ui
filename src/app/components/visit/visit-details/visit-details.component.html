@@ -1,8 +1,20 @@
 <p-toast></p-toast>
-<p-dialog header="Export (JSON)" [(visible)]="exportVisible">
-  This is the JSON representation of the workspace. Click the button below to
-  copy it to your clipboard.
-  <pre>{{ workspace | json }}</pre>
+<p-dialog
+  header="Export (JSON)"
+  [(visible)]="exportVisible"
+  [resizable]="false"
+  [draggable]="false"
+>
+  <span
+    >This is the JSON representation of the workspace. Click the button below to
+    copy it to your clipboard.</span
+  >
+  <textarea
+    pInputTextarea
+    [value]="workspace | json"
+    rows="10"
+    style="width: 80%"
+  ></textarea>
 </p-dialog>
 <div *ngIf="detailView; else submit">
   <div class="grid" style="margin-right: 0">
