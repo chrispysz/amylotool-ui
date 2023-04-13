@@ -8,16 +8,18 @@ import { Observable } from 'rxjs/internal/Observable';
 export class PredictionService {
   constructor(private readonly httpClient: HttpClient) {}
 
-  private readonly path = 'https://amylotool-backend.azurewebsites.net/predict';
+  private readonly path = 'https://amylotool-backend-go.herokuapp.com/predict';
 
   predictFull(model: string, sequence: string): Observable<any> {
-    let data = { model: model, sequence: sequence };
+    let data = { modelUrl: model, sequence: sequence };
 
-    return this.httpClient.post(`${this.path}/model`, data);
+    return this.httpClient.post(`${this.path}`, data);
   }
 
   checkServiceAvailability(model: string): Observable<any> {
-    let data = { model: model, sequence: 'ping' };
-    return this.httpClient.post(`${this.path}/model`, data);
+    
+    let data = { modelUrl: model, sequence: 'MFKKHTISLLIIFLLASAVLAKPIEAHTVSPVNPNAQQTTK' };
+    console.log(data.modelUrl)
+    return this.httpClient.post(`${this.path}`, data);
   }
 }

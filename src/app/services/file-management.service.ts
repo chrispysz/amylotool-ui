@@ -32,11 +32,11 @@ export class FileManagementService {
 
   sizeValid(sequences: FastaSequence[]): boolean {
     let valid = true;
-    if (sequences.length > 1000) {
+    if (sequences.length > 200000) {
       return false;
     }
     sequences.forEach((sequence) => {
-      if (sequence.sequence.length > 512) {
+      if (sequence.sequence.length > 10024) {
         valid = false;
       }
     });

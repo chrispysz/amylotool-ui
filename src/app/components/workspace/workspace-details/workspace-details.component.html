@@ -49,6 +49,22 @@
       *ngIf="!aligning; else alignment"
     >
       <div class="header">
+        <p-card
+          *ngIf="predictingAll"
+          header="Prediction info"
+          [subheader]="currentlySelectedModel.name"
+          class="header-spaced"
+          [style]="{ width: '360px' }"
+        >
+          <ng-template pTemplate="header"> </ng-template>
+          <p>
+            <b>Progress:</b> {{ currentlyPredictedIndex - 1 }}/{{
+              totalPredictions
+            }}
+            ({{ predictionPercentage }}%)
+          </p>
+          <p><b>Avg. time per prediction:</b> {{ atpp }} seconds</p>
+        </p-card>
         <div class="header-spaced">
           <span class="p-input-icon-left" style="align-self: flex-start">
             <i class="pi pi-search"></i>
@@ -59,9 +75,6 @@
               placeholder="Search"
             />
           </span>
-          <span *ngIf="timeLeft > 0"
-            >Approximately {{ timeLeft }} seconds remaining</span
-          >
         </div>
         <div class="header-spaced">
           <div class="header-left">
@@ -86,17 +99,7 @@
               (onClick)="aligning = true"
             ></p-button>
           </div>
-          <span
-            title="Currently selected model"
-            style="
-              font-size: 30px;
-              font-family: Impact, Haettenschweiler, 'Arial Narrow Bold',
-                sans-serif;
-              min-width: 200px;
-              text-align: center;
-            "
-            >{{ currentlySelectedModel }}</span
-          >
+
           <div class="header-right">
             <p-button
               icon="pi pi-trash"
@@ -120,6 +123,7 @@
         [loading]="tableLoading"
         [paginator]="true"
         [paginatorPosition]="'both'"
+        [selectionPageOnly]="true"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [filterDelay]="0"
         [globalFilterFields]="['name', 'value']"
@@ -147,7 +151,7 @@
         <ng-template pTemplate="body" let-sequence let-expanded="expanded">
           <tr>
             <td>
-              <p-tableCheckbox [value]="sequence"></p-tableCheckbox>
+              <p-tableCheckbox [value]="sequence" [disabled]="!sequenceValid(sequence)"></p-tableCheckbox>
             </td>
             <td>
               <button
@@ -168,7 +172,13 @@
                 title="Sequence unprocessed"
                 class="pi pi-question-circle"
                 style="font-size: 2rem"
-                *ngIf="!sequence.status"
+                *ngIf="!sequence.status && sequenceValid(sequence)"
+              ></i>
+              <i
+                title="Sequence length too short for this model"
+                class="pi pi-exclamation-circle"
+                style="color: orange; font-size: 2rem"
+                *ngIf="!sequence.status && !sequenceValid(sequence)"
               ></i>
               <i
                 title="Positives found"
@@ -181,12 +191,6 @@
                 class="pi pi-times-circle"
                 style="color: rgba(255, 0, 0, 0.753); font-size: 2rem"
                 *ngIf="sequence.status === 'NEGATIVE'"
-              ></i>
-              <i
-                title="Sequence length too short for this model"
-                class="pi pi-exclamation-circle"
-                style="color: orange; font-size: 2rem; margin-left: 10px"
-                *ngIf="sequence.value.length < 40"
               ></i>
             </td>
             <td>

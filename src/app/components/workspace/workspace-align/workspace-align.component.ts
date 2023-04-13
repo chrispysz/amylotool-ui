@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Model } from 'src/app/models/model';
 import { Sequence } from 'src/app/models/sequence';
 import { FirebaseService } from 'src/app/services/firebase.service';
 
@@ -12,21 +13,25 @@ export class WorkspaceAlignComponent implements OnInit {
   @Input() threshold = 0.5;
   @Output() backClick = new EventEmitter<void>();
 
-  models: string[] = [];
+  models: Model[] = [];
 
   constructor(private readonly firebaseService: FirebaseService) {}
 
   ngOnInit(): void {
-    this.models = this.firebaseService.getModelsDummy();
+    this.firebaseService.getAllModels().then((models) => {
+      this.models = models;
+    });
   }
 
-  predictionExists(sequence: Sequence, model: string) {
+  predictionExists(sequence: Sequence, model: Model) {
+    console.log(sequence);
+    console.log(model);
     let seq = this.sequences.find((s) => s.id == sequence.id)!;
-    let log = seq.predictLogs.find((l) => l.model == model);
+    let log = seq.predictLogs.find((l) => l.model == model.name);
     return log ? true : false;
   }
 
-  getColoredRepresentation(sequence: Sequence, model: string) {
+  getColoredRepresentation(sequence: Sequence, model: Model) {
     if (!this.predictionExists(sequence, model)) {
       return (
         `<span style="font-weight: bold">${sequence.name}</span>\n` +
@@ -41,7 +46,8 @@ export class WorkspaceAlignComponent implements OnInit {
     }
     const coloredIndexes = Array(sequence.value.length).fill(false);
     sequence.predictLogs.forEach((log: any) => {
-      if (log.model == model) {
+      if (log.model == model.name) {
+        
         log.data.forEach((pred: any) => {
           if (Number(pred.prediction) > this.threshold) {
             let start = pred.startIndex;

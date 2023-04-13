@@ -26,6 +26,8 @@ import { Table } from 'primeng/table';
 import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import * as FileSaver from 'file-saver';
+import { Model } from 'src/app/models/model';
+import { sequence } from '@angular/animations';
 
 @Component({
   selector: 'app-workspace-details',
@@ -53,9 +55,18 @@ export class WorkspaceDetailsComponent implements OnInit {
   currentlyPredictedIndex!: number;
   totalPredictions!: number;
   predictionPercentage: number = 100;
-  currentlyPredictedSequence!: string;
+  currentlyPredictedSequence: Sequence | null = null;
 
-  currentlySelectedModel = 'AmBERT';
+  atpp = '';
+
+  aminoAcidsRegex = /^[ACDEFGHIKLMNPQRSTVWY]+$/;
+
+  currentlySelectedModel: Model = {
+    id: '',
+    name: 'None',
+    url: '',
+  };
+
   connectionErrorText = '';
 
   dataSource!: MatTableDataSource<any>;
@@ -110,29 +121,8 @@ export class WorkspaceDetailsComponent implements OnInit {
     },
   ];
 
-  modelItems: MenuItem[] = [
-    {
-      label: 'AmBERT',
-      command: () => {
-        this.currentlySelectedModel = 'AmBERT';
-        this.refreshSequences();
-      },
-    },
-    {
-      label: 'ProteinBERT',
-      command: () => {
-        this.currentlySelectedModel = 'ProteinBERT';
-        this.refreshSequences();
-      },
-    },
-    {
-      label: 'LSTM',
-      command: () => {
-        this.currentlySelectedModel = 'LSTM';
-        this.refreshSequences();
-      },
-    },
-  ];
+  modelItems: MenuItem[] = [];
+  models: Model[] = [];
 
   constructor(
     private readonly firebaseService: FirebaseService,
@@ -160,22 +150,31 @@ export class WorkspaceDetailsComponent implements OnInit {
             .then((dbRef) => {
               this.threshold = dbRef.threshold;
               this.refreshSequences();
-              this.dataSource = new MatTableDataSource(
-                this.workspace.sequences
-              );
               this.loading = false;
-              this.checkingAvailability = true;
-              this.checkCurrentModelAvailability(this.currentlySelectedModel);
             });
         })
         .catch((error) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: `Workspace could not be loaded. Check if the provided ID is correct`,
+            detail: `Workspace could not be loaded.`,
           });
           console.error(error);
         });
+    });
+    this.firebaseService.getAllModels().then((models) => {
+      this.models = models;
+      this.currentlySelectedModel = models[0];
+      this.checkingAvailability = true;
+      this.checkCurrentModelAvailability(this.currentlySelectedModel);
+      this.modelItems = models.map((model) => {
+        return {
+          label: model.name,
+          command: () => {
+            this.onModelChange(model);
+          },
+        };
+      });
     });
   }
 
@@ -195,16 +194,15 @@ export class WorkspaceDetailsComponent implements OnInit {
   }
 
   confirm1() {
+    let clearSequences = this.selectedSequences.filter(
+      (s) => !this.predictionExists(s) && this.sequenceValid(s)
+    );
     this.confirmationService.confirm({
-      message: `Are you sure that you want to start the prediction for ${this.selectedSequences.length} sequences?`,
+      message: `Are you sure that you want to start the prediction for ${clearSequences.length} sequences?`,
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.predictingAll = true;
-        let clearSequences = this.selectedSequences.filter(
-          (s) => !this.predictionExists(s)
-        );
+        
         if (clearSequences.length == 0) {
-          this.predictingAll = false;
           this.messageService.add({
             severity: 'info',
             summary: 'Prediction status',
@@ -216,8 +214,14 @@ export class WorkspaceDetailsComponent implements OnInit {
             summary: 'Prediction status',
             detail: 'Running...',
           });
-          this.predictionPercentage = 0;
-          this.predictSelectedSequences(clearSequences);
+          if (clearSequences.length == 1) {
+            this.predictingSingle = true;
+            this.predict(clearSequences[0]);
+          } else {
+            this.predictingAll = true;
+            this.predictionPercentage = 0;
+            this.predictSelectedSequences(clearSequences);
+          }
         }
       },
       reject: () => {},
@@ -228,7 +232,7 @@ export class WorkspaceDetailsComponent implements OnInit {
     this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  onModelChange(model: string) {
+  onModelChange(model: Model) {
     this.checkingAvailability = false;
     this.connectionErrorText = '';
     this.currentlySelectedModel = model;
@@ -237,15 +241,19 @@ export class WorkspaceDetailsComponent implements OnInit {
     this.checkCurrentModelAvailability(model);
   }
 
-  checkCurrentModelAvailability(model: string) {
+  checkCurrentModelAvailability(model: Model) {
     this.predictionService
-      .checkServiceAvailability(model)
-      .pipe(delay(2000))
+      .checkServiceAvailability(model.url)
+      .pipe(delay(500))
       .subscribe(
         (response) => {
-          if (response.results == 'Service reached') {
-            this.checkingAvailability = false;
-          }
+          this.connectionErrorText = '';
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Connection status',
+            detail: `Connection with ${model.name} established.`,
+          });
+          this.checkingAvailability = false;
         },
         (error) => {
           this.connectionErrorText = error.error.error;
@@ -304,28 +312,39 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   predict(sequence: Sequence) {
     this.predictingSingle = true;
-    this.currentlyPredictedSequence = sequence.name;
+    this.currentlyPredictedSequence = sequence;
     let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
     this.predictionService
-      .predictFull(this.currentlySelectedModel, sequence.value)
-      .subscribe((response) => {
-        seq.predictLogs.push({
-          model: this.currentlySelectedModel,
-          data: response.results,
-        });
-        this.saveChanges();
-      });
+      .predictFull(this.currentlySelectedModel.url, sequence.value)
+      .subscribe(
+        (response) => {
+          seq.predictLogs.push({
+            model: this.currentlySelectedModel.name,
+            data: response.results,
+          });
+          this.predictingSingle = false;
+          this.saveChanges();
+        },
+        (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Prediction status',
+            detail: `Error while predicting sequence ${sequence.name}`,
+          });
+          this.predictingSingle = false;
+        }
+      );
   }
 
   predictWithoutSave(sequence: Sequence): Observable<any> {
     let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
-    this.currentlyPredictedSequence = seq.name;
+    this.currentlyPredictedSequence = seq;
     return this.predictionService
-      .predictFull(this.currentlySelectedModel, sequence.value)
+      .predictFull(this.currentlySelectedModel.url, sequence.value)
       .pipe(
         tap((response) => {
           seq.predictLogs.push({
-            model: this.currentlySelectedModel,
+            model: this.currentlySelectedModel.name,
             data: response.results,
           });
         })
@@ -339,14 +358,21 @@ export class WorkspaceDetailsComponent implements OnInit {
     let startTime = Date.now();
     let endTime = Date.now();
     let timeDiff = endTime - startTime;
-    let timeLeftArray: number[] = [];
+    let timeDiffs: number[] = [];
 
     from(clearSequences)
       .pipe(
         concatMap((sequence) => this.predictWithoutSave(sequence)),
         tap(() => (this.currentlyPredictedIndex += 1)),
         catchError((err) => {
-          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Prediction status',
+            detail: `Error while predicting sequence ${
+              this.currentlyPredictedSequence!.name
+            }`,
+          });
+          timeDiffs = [];
           return of(null);
         })
       )
@@ -356,18 +382,30 @@ export class WorkspaceDetailsComponent implements OnInit {
         );
         endTime = Date.now();
         timeDiff = endTime - startTime;
-        timeLeftArray.push(
-          Math.round(
-            ((timeDiff / this.currentlyPredictedIndex) *
-              (this.totalPredictions + 1 - this.currentlyPredictedIndex)) /
-              1000
-          )
-        );
-        this.timeLeft = Math.round(
-          timeLeftArray.reduce((a, b) => a + b, 0) / timeLeftArray.length
-        );
+        let td = 0;
+        console.log(this.currentlyPredictedSequence);
+        if (this.currentlyPredictedSequence!.value.length - 40.0 <= 0) {
+          td = timeDiff / 1000.0;
+        } else {
+          td =
+            timeDiff /
+            (this.currentlyPredictedSequence!.value.length - 40.0) /
+            1000.0;
+        }
+        timeDiffs.push(td);
+
+        this.atpp = (
+          timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length
+        ).toFixed(3);
+
         startTime = Date.now();
         if (this.currentlyPredictedIndex - 1 == this.totalPredictions) {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Prediction status',
+            detail: 'Saving...',
+          });
+          timeDiffs = [];
           this.saveChanges();
         }
       });
@@ -376,7 +414,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   predictionExists(sequence: Sequence) {
     let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
     let log = seq.predictLogs.find(
-      (l) => l.model == this.currentlySelectedModel
+      (l) => l.model == this.currentlySelectedModel.name
     );
     return log ? true : false;
   }
@@ -384,7 +422,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   saveChanges() {
     this.predictingSingle = false;
     this.predictingAll = false;
-    this.currentlyPredictedSequence = '';
+    this.currentlyPredictedSequence = null;
     this.tableLoading = true;
     this.firebaseService.getWorkspaceRef(this.workspace.id).then((dbRef) => {
       let savedWorkspace = {
@@ -434,7 +472,7 @@ export class WorkspaceDetailsComponent implements OnInit {
     }
     const coloredIndexes = Array(sequence.value.length).fill(false);
     sequence.predictLogs.forEach((log: any) => {
-      if (log.model == this.currentlySelectedModel) {
+      if (log.model == this.currentlySelectedModel.name) {
         log.data.forEach((pred: any) => {
           if (Number(pred.prediction) > this.threshold) {
             let start = pred.startIndex;
@@ -462,7 +500,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   refreshSequences() {
     this.workspace.sequences.forEach((sequence: any) => {
       let modelLog = sequence.predictLogs.find(
-        (l: any) => l.model == this.currentlySelectedModel
+        (l: any) => l.model == this.currentlySelectedModel.name
       );
       if (modelLog) {
         let predictions = modelLog.data;
@@ -476,5 +514,15 @@ export class WorkspaceDetailsComponent implements OnInit {
         sequence.status = '';
       }
     });
+  }
+
+  sequenceValid(sequence: Sequence) {
+    if (sequence.value.length < 40) {
+      return false;
+    }
+    if (!this.aminoAcidsRegex.test(sequence.value)) {
+      return false;
+    }
+    return true;
   }
 }

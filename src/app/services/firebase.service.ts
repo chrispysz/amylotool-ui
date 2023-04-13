@@ -28,12 +28,14 @@ import { WorkspaceDbReference } from '../models/workspace-db-reference';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Workspace } from '../models/workspace';
 import { Router } from '@angular/router';
+import { Model } from '../models/model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FirebaseService {
   private workspacesCollection: any;
+  private modelsCollection: any;
 
   constructor(
     private readonly firestore: Firestore,
@@ -43,6 +45,7 @@ export class FirebaseService {
     private readonly _snackBar: MatSnackBar
   ) {
     this.workspacesCollection = collection(firestore, 'workspaces');
+    this.modelsCollection = collection(firestore, 'models');
   }
   storage = getStorage();
 
@@ -220,6 +223,25 @@ export class FirebaseService {
   getModelsDummy() {
     return ['AmBERT', 'ProteinBERT', 'LSTM'];
 
+  }
+
+  async getAllModels(): Promise<Model[]> {
+    return new Promise((resolve, reject) => {
+      let models: Model[] = [];
+      getDocs(this.modelsCollection)
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            let model = doc.data() as Model;
+            model.id = doc.id;
+            models.push(model);
+          });
+
+          resolve(models);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
   }
 
   deleteWorkspaceRef(id: string) {
