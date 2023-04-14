@@ -24,8 +24,6 @@ export class WorkspaceAlignComponent implements OnInit {
   }
 
   predictionExists(sequence: Sequence, model: Model) {
-    console.log(sequence);
-    console.log(model);
     let seq = this.sequences.find((s) => s.id == sequence.id)!;
     let log = seq.predictLogs.find((l) => l.model == model.name);
     return log ? true : false;

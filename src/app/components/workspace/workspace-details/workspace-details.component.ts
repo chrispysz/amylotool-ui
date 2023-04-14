@@ -292,7 +292,6 @@ export class WorkspaceDetailsComponent implements OnInit {
   }
 
   backFromAlign() {
-    console.log('back from align');
     this.aligning = false;
   }
 
@@ -383,7 +382,6 @@ export class WorkspaceDetailsComponent implements OnInit {
         endTime = Date.now();
         timeDiff = endTime - startTime;
         let td = 0;
-        console.log(this.currentlyPredictedSequence);
         if (this.currentlyPredictedSequence!.value.length - 40.0 <= 0) {
           td = timeDiff / 1000.0;
         } else {
