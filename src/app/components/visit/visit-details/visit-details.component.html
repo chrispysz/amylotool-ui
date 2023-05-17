@@ -61,7 +61,7 @@
                 placeholder="Search"
               />
             </span>
-            <span>Current model: {{ currentlySelectedModel }}</span>
+            <span>Current model: {{ currentlySelectedModel.name }}</span>
           </div>
         </ng-template>
         <ng-template pTemplate="header">
@@ -95,17 +95,30 @@
               {{ sequence.name }}
             </td>
             <td>
-              <mat-icon *ngIf="!sequence.status">question_mark</mat-icon>
-              <mat-icon
-                style="color: green"
+              <i
+                title="Sequence unprocessed"
+                class="pi pi-question-circle"
+                style="font-size: 2rem"
+                *ngIf="!sequence.status && sequenceValid(sequence)"
+              ></i>
+              <i
+                title="Sequence length too short for this model"
+                class="pi pi-exclamation-circle"
+                style="color: orange; font-size: 2rem"
+                *ngIf="!sequence.status && !sequenceValid(sequence)"
+              ></i>
+              <i
+                title="Positives found"
+                class="pi pi-check-circle"
+                style="color: green; font-size: 2rem"
                 *ngIf="sequence.status === 'POSITIVE'"
-                >check</mat-icon
-              >
-              <mat-icon
-                style="color: red"
+              ></i>
+              <i
+                title="No positives found"
+                class="pi pi-times-circle"
+                style="color: rgba(255, 0, 0, 0.753); font-size: 2rem"
                 *ngIf="sequence.status === 'NEGATIVE'"
-                >close</mat-icon
-              >
+              ></i>
             </td>
             <td>
               {{ sequence.note }}

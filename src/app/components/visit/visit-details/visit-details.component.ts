@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
+import { Model } from 'src/app/models/model';
 import { Sequence } from 'src/app/models/sequence';
 import { Workspace } from 'src/app/models/workspace';
 import { FirebaseService } from 'src/app/services/firebase.service';
@@ -22,8 +23,14 @@ export class VisitDetailsComponent {
   exportVisible = false;
   exportJSON = '';
 
+  aminoAcidsRegex = /^[ACDEFGHIKLMNPQRSTVWY]+$/;
+
   workspace!: Workspace;
-  currentlySelectedModel = 'AmBERT';
+  currentlySelectedModel = {
+    id: '',
+    name: 'None',
+    url: '',
+  };
   threshold = 0.5;
 
   sideMenuItems: MenuItem[] = [
@@ -51,29 +58,8 @@ export class VisitDetailsComponent {
     },
   ];
 
-  modelItems: MenuItem[] = [
-    {
-      label: 'AmBERT',
-      command: () => {
-        this.currentlySelectedModel = 'AmBERT';
-        this.refreshSequences();
-      },
-    },
-    {
-      label: 'ProteinBERT',
-      command: () => {
-        this.currentlySelectedModel = 'ProteinBERT';
-        this.refreshSequences();
-      },
-    },
-    {
-      label: 'LSTM',
-      command: () => {
-        this.currentlySelectedModel = 'LSTM';
-        this.refreshSequences();
-      },
-    },
-  ];
+  modelItems: MenuItem[] = [];
+  models: Model[] = [];
 
   idForm = this.fb.group({
     id: [
@@ -107,9 +93,23 @@ export class VisitDetailsComponent {
         }));
         this.wService.getWorkspaceRef(this.workspace.id).then((dbRef) => {
           this.threshold = dbRef.threshold;
-          this.refreshSequences();
-          this.fetchLoading = false;
           this.detailView = true;
+
+          this.wService.getAllModels().then((models) => {
+            this.models = models;
+            this.modelItems = models.map((model) => {
+              return {
+                label: model.name,
+                command: () => {
+                  this.currentlySelectedModel = model;
+                  this.refreshSequences();
+                },
+              };
+            });
+            this.currentlySelectedModel = models[0];
+            this.refreshSequences();
+            this.fetchLoading = false;
+          });
         });
       })
       .catch((error) => {
@@ -121,12 +121,13 @@ export class VisitDetailsComponent {
         console.error(error);
         this.fetchLoading = false;
       });
+      
   }
 
   predictionExists(sequence: Sequence) {
     let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
     let log = seq.predictLogs.find(
-      (l) => l.model == this.currentlySelectedModel
+      (l) => l.model == this.currentlySelectedModel.name
     );
     return log ? true : false;
   }
@@ -137,7 +138,7 @@ export class VisitDetailsComponent {
     }
     const coloredIndexes = Array(sequence.value.length).fill(false);
     sequence.predictLogs.forEach((log: any) => {
-      if (log.model == this.currentlySelectedModel) {
+      if (log.model == this.currentlySelectedModel.name) {
         log.data.forEach((pred: any) => {
           if (Number(pred.prediction) > this.threshold) {
             let start = pred.startIndex;
@@ -172,7 +173,7 @@ export class VisitDetailsComponent {
         sequence.note += 'Sequence edited by user';
       }
       let modelLog = sequence.predictLogs.find(
-        (l: any) => l.model == this.currentlySelectedModel
+        (l: any) => l.model == this.currentlySelectedModel.name
       );
       if (modelLog) {
         let predictions = modelLog.data;
@@ -186,5 +187,15 @@ export class VisitDetailsComponent {
         sequence.status = '';
       }
     });
+  }
+
+  sequenceValid(sequence: Sequence) {
+    if (sequence.value.length < 40) {
+      return false;
+    }
+    if (!this.aminoAcidsRegex.test(sequence.value)) {
+      return false;
+    }
+    return true;
   }
 }

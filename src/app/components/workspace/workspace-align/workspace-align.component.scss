@@ -3,7 +3,9 @@
   max-width: 42ch;
   margin-left: 20px;
   font-size: 16px;
+  margin-bottom: 10px;
 }
+
 .element-detail {
   overflow-x: auto;
   overflow-wrap: break-word;
@@ -11,6 +13,7 @@
   flex-direction: column;
   font-size: 16px;
 }
+
 .element-header {
   font-family: "Roboto Mono", monospace;
   max-width: 43ch;
@@ -18,8 +21,42 @@
   font-size: 16px;
 }
 
+.model-name {
+  margin-left: 5px;
+  margin-right: 15px;
+  font-size: 20px;
+}
+
+.model-name-header {
+  font-size: 20px;
+  text-align: center;
+}
+
+.element-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.element-column {
+  display: flex;
+  flex-direction: column;
+}
+
 :host ::ng-deep {
   .p-button {
     margin: 15px;
   }
+}
+
+.checkbox-container {
+  margin: 35px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.model-container {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
 }

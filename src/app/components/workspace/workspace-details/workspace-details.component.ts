@@ -13,12 +13,11 @@ import {
   from,
   Observable,
   of,
+  Subscription,
   tap,
-  toArray,
 } from 'rxjs';
 import {
   ConfirmationService,
-  ConfirmEventType,
   MenuItem,
   MessageService,
 } from 'primeng/api';
@@ -27,7 +26,6 @@ import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-d
 import { MatDialog } from '@angular/material/dialog';
 import * as FileSaver from 'file-saver';
 import { Model } from 'src/app/models/model';
-import { sequence } from '@angular/animations';
 
 @Component({
   selector: 'app-workspace-details',
@@ -36,6 +34,8 @@ import { sequence } from '@angular/animations';
 })
 export class WorkspaceDetailsComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
+
+  predictSubscription!: Subscription
 
   timeLeft = 0;
 
@@ -353,13 +353,13 @@ export class WorkspaceDetailsComponent implements OnInit {
   predictSelectedSequences(clearSequences: Sequence[]) {
     this.currentlyPredictedIndex = 1;
     this.totalPredictions = clearSequences.length;
-
+  
     let startTime = Date.now();
     let endTime = Date.now();
     let timeDiff = endTime - startTime;
     let timeDiffs: number[] = [];
-
-    from(clearSequences)
+  
+    this.predictSubscription = from(clearSequences)
       .pipe(
         concatMap((sequence) => this.predictWithoutSave(sequence)),
         tap(() => (this.currentlyPredictedIndex += 1)),
@@ -407,6 +407,13 @@ export class WorkspaceDetailsComponent implements OnInit {
           this.saveChanges();
         }
       });
+  }
+  
+  cancelPrediction() {
+    if (this.predictSubscription) {
+      this.predictSubscription.unsubscribe();
+      this.saveChanges();
+    }
   }
 
   predictionExists(sequence: Sequence) {

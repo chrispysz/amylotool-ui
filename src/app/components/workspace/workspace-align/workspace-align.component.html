@@ -2,27 +2,43 @@
   icon="pi pi-arrow-circle-left"
   title="Back"
   (click)="backToTable()"
+  [loading]="loading"
   styleClass="p-button-rounded"
 ></p-button>
-<div style="display: flex; flex-direction: row">
-  <div class="element-detail" *ngFor="let model of models">
-    <span style="margin-left: 20px; font-size: 20px">{{ model.name }}</span>
-    <span class="element-header" style="margin-top: 10px">
-      1--------10--------20--------30--------40
-    </span>
+
+<div class="checkbox-container">
+  <div *ngFor="let model of models" class="model-container">
+    <p-checkbox
+      [binary]="true"
+      [(ngModel)]="model.checked"
+      (onChange)="modelChanged(model, model.checked)"
+      class="model-checkbox"
+    >
+    </p-checkbox>
+    <span class="model-name">{{ model.name }}</span>
   </div>
 </div>
+
+<div class="element-row">
+  <div class="element-detail" *ngFor="let model of selectedModels">
+    <span class="model-name-header">{{ model.name }}</span>
+    <span class="element-header"
+      >1--------10--------20--------30--------40</span
+    >
+  </div>
+</div>
+
 <p-scrollPanel [style]="{ height: '800px' }">
-  <div style="display: flex; flex-direction: row">
-    <div class="element-detail" *ngFor="let model of models">
-      <div style="display: flex; flex-direction: column">
+  <div class="element-row">
+    <div class="element-detail" *ngFor="let model of selectedModels">
+      <div class="element-column">
         <span
           *ngFor="let sequence of sequences"
           class="element-description"
-          [innerHTML]="getColoredRepresentation(sequence, model) | noSanitize"
-          style="margin-bottom: 10px"
-        >
-        </span>
+          [innerHTML]="
+            representations[sequence.id + '_' + model.name] | noSanitize
+          "
+        ></span>
       </div>
     </div>
   </div>

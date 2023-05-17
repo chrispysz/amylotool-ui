@@ -64,6 +64,13 @@
             ({{ predictionPercentage }}%)
           </p>
           <p><b>Avg. time per prediction:</b> {{ atpp }} seconds</p>
+          <p-button
+              icon="pi pi-cross"
+              title="Cancel running predictions"
+              [loading]="false"
+              label="Cancel"
+              (onClick)="cancelPrediction()"
+            ></p-button>
         </p-card>
         <div class="header-spaced">
           <span class="p-input-icon-left" style="align-self: flex-start">

@@ -60,6 +60,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { CheckboxModule } from 'primeng/checkbox';
 import { WorkspaceAlignComponent } from './components/workspace/workspace-align/workspace-align.component';
 
 @NgModule({
@@ -114,6 +115,7 @@ import { WorkspaceAlignComponent } from './components/workspace/workspace-align/
     InputTextareaModule,
     ProgressBarModule,
     ScrollPanelModule,
+    CheckboxModule,
     
     
 
