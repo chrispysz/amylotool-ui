@@ -41,7 +41,7 @@ export class WorkspaceAlignComponent implements OnInit {
         };
       });
       this.models.push({
-        name: 'Summary',
+        name: 'Consensus',
         checked: false,
       });
       this.loading = false;
@@ -79,7 +79,7 @@ export class WorkspaceAlignComponent implements OnInit {
   getColoredRepresentation(sequence: Sequence, model: Model) {
     let representation = '';
 
-    if (!this.predictionExists(sequence, model) && model.name !== 'Summary') {
+    if (!this.predictionExists(sequence, model) && model.name !== 'Consensus') {
       representation = `<span style="font-weight: bold">${sequence.name}</span>\n<span style="opacity: .4">${sequence.value}</span>`;
     } else {
       representation = this.getRepresentationWithPrediction(sequence, model);
@@ -95,7 +95,7 @@ export class WorkspaceAlignComponent implements OnInit {
         `${sequence.value}`;
     } else {
       const coloredIndexes = Array(sequence.value.length).fill(false);
-      if (model.name === 'Summary') {
+      if (model.name === 'Consensus') {
         this.fillColoredIndexes(sequence, model, coloredIndexes);
       } else {
         this.fillOwnIndexes(sequence, model, coloredIndexes);

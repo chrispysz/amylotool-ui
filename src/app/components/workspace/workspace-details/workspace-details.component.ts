@@ -15,12 +15,9 @@ import {
   of,
   Subscription,
   tap,
+  timeout,
 } from 'rxjs';
-import {
-  ConfirmationService,
-  MenuItem,
-  MessageService,
-} from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { SequenceDialogComponent } from '../../shared/sequence-dialog/sequence-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -35,7 +32,7 @@ import { Model } from 'src/app/models/model';
 export class WorkspaceDetailsComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
-  predictSubscription!: Subscription
+  predictSubscription!: Subscription;
 
   timeLeft = 0;
 
@@ -167,14 +164,7 @@ export class WorkspaceDetailsComponent implements OnInit {
       this.currentlySelectedModel = models[0];
       this.checkingAvailability = true;
       this.checkCurrentModelAvailability(this.currentlySelectedModel);
-      this.modelItems = models.map((model) => {
-        return {
-          label: model.name,
-          command: () => {
-            this.onModelChange(model);
-          },
-        };
-      });
+      this.remapModelItems();
     });
   }
 
@@ -201,7 +191,6 @@ export class WorkspaceDetailsComponent implements OnInit {
       message: `Are you sure that you want to start the prediction for ${clearSequences.length} sequences?`,
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        
         if (clearSequences.length == 0) {
           this.messageService.add({
             severity: 'info',
@@ -236,15 +225,31 @@ export class WorkspaceDetailsComponent implements OnInit {
     this.checkingAvailability = false;
     this.connectionErrorText = '';
     this.currentlySelectedModel = model;
+    this.remapModelItems();
     this.refreshSequences();
     this.checkingAvailability = true;
+    this.remapModelItems();
     this.checkCurrentModelAvailability(model);
+  }
+
+  remapModelItems() {
+    this.modelItems = this.models.map((model) => {
+      return {
+        icon:
+          model.name === this.currentlySelectedModel.name ? 'pi pi-check' : '',
+        label: model.name,
+        disabled: this.processRunning() || this.checkingAvailability,
+        command: () => {
+          this.onModelChange(model);
+        },
+      };
+    });
   }
 
   checkCurrentModelAvailability(model: Model) {
     this.predictionService
       .checkServiceAvailability(model.url)
-      .pipe(delay(500))
+      .pipe(delay(200), timeout(5000))
       .subscribe(
         (response) => {
           this.connectionErrorText = '';
@@ -254,10 +259,19 @@ export class WorkspaceDetailsComponent implements OnInit {
             detail: `Connection with ${model.name} established.`,
           });
           this.checkingAvailability = false;
+          this.remapModelItems();
         },
         (error) => {
-          this.connectionErrorText = error.error.error;
+          this.connectionErrorText = error.error
+            ? error.error.error
+            : 'Request timed out';
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Connection with ${model.name} could not be established`,
+            });
           this.checkingAvailability = false;
+          this.remapModelItems();
         }
       );
   }
@@ -312,6 +326,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   predict(sequence: Sequence) {
     this.predictingSingle = true;
     this.currentlyPredictedSequence = sequence;
+    this.remapModelItems();
     let seq = this.workspace.sequences.find((s) => s.id == sequence.id)!;
     this.predictionService
       .predictFull(this.currentlySelectedModel.url, sequence.value)
@@ -353,12 +368,12 @@ export class WorkspaceDetailsComponent implements OnInit {
   predictSelectedSequences(clearSequences: Sequence[]) {
     this.currentlyPredictedIndex = 1;
     this.totalPredictions = clearSequences.length;
-  
+
     let startTime = Date.now();
     let endTime = Date.now();
     let timeDiff = endTime - startTime;
     let timeDiffs: number[] = [];
-  
+
     this.predictSubscription = from(clearSequences)
       .pipe(
         concatMap((sequence) => this.predictWithoutSave(sequence)),
@@ -408,7 +423,7 @@ export class WorkspaceDetailsComponent implements OnInit {
         }
       });
   }
-  
+
   cancelPrediction() {
     if (this.predictSubscription) {
       this.predictSubscription.unsubscribe();
