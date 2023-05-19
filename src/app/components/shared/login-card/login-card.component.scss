@@ -1,23 +1,41 @@
-.login-card {
-  width: 500px;
-  height: 500px;
-  margin: auto;
-  margin-top: 10vh;
+.app-card {
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
-mat-card-header {
-  display: inline-block;
-  align-self: center;
+.app-title {
+  width: 100%;
+  display: block;
+  margin: 0 auto 45px auto;
   text-align: center;
+  font-size: 50px;
+  font-weight: bold;
+  font-family: "Roboto", sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-mat-card-content {
+.app-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 50px;
 }
 
-mat-card-actions {
-  display: inline-block;
-  align-self: flex-end;
-  padding: 20px;
+.p-field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-d-block {
+  margin-bottom: 5px;
+}
+
+.app-button {
+  margin-top: 20px;
+  width: 30%;
 }

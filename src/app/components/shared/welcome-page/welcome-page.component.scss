@@ -1,0 +1,32 @@
+:host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  .card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+  }
+  
+  .image-title {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+  }
+  
+  .model-image {
+    width: 15%;
+    max-height: 100%;
+  }
+  
+  .model-text {
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  

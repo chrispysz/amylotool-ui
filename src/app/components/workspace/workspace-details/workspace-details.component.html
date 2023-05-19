@@ -65,13 +65,13 @@
           </p>
           <p><b>Avg. time per prediction:</b> {{ atpp }} seconds</p>
           <p-button
-              icon="pi pi-stop"
-              title="Cancel running predictions"
-              styleClass="p-button-warning"
-              [loading]="false"
-              label="Cancel"
-              (onClick)="cancelPrediction()"
-            ></p-button>
+            icon="pi pi-stop"
+            title="Cancel running predictions"
+            styleClass="p-button-warning"
+            [loading]="false"
+            label="Cancel"
+            (onClick)="cancelPrediction()"
+          ></p-button>
         </p-card>
         <div class="header-spaced">
           <span class="p-input-icon-left" style="align-self: flex-start">
@@ -159,7 +159,10 @@
         <ng-template pTemplate="body" let-sequence let-expanded="expanded">
           <tr>
             <td>
-              <p-tableCheckbox [value]="sequence" [disabled]="!sequenceValid(sequence)"></p-tableCheckbox>
+              <p-tableCheckbox
+                [value]="sequence"
+                [disabled]="!sequenceValid(sequence)"
+              ></p-tableCheckbox>
             </td>
             <td>
               <button

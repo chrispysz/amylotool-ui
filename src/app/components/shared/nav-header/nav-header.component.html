@@ -1,9 +1,24 @@
 <p-menubar [model]="items">
   <ng-template pTemplate="end">
-    <p-selectButton [options]="stateOptions" [(ngModel)]="value1" optionLabel="icon" optionValue="value" (onChange)="changeTheme($event)">
-      <ng-template let-item>
-          <i style="margin: auto;" [class]="item.icon"></i>
-      </ng-template>
-  </p-selectButton>
-</ng-template>
+    <div class="app-menu-end-items">
+      <p-button
+        *ngIf="loggedIn()"
+        id="logout"
+        label="Logout"
+        icon="pi pi-sign-out"
+        (onClick)="logout()"
+      ></p-button>
+      <p-selectButton
+        [options]="stateOptions"
+        [(ngModel)]="startValue"
+        optionLabel="icon"
+        optionValue="value"
+        (onChange)="changeTheme($event)"
+      >
+        <ng-template let-item>
+          <i style="margin: auto" [class]="item.icon"></i>
+        </ng-template>
+      </p-selectButton>
+    </div>
+  </ng-template>
 </p-menubar>

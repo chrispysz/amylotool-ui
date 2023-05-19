@@ -62,6 +62,8 @@ export class WorkspaceDetailsComponent implements OnInit {
     id: '',
     name: 'None',
     url: '',
+    imageUrl: '',
+    description: '',
   };
 
   connectionErrorText = '';

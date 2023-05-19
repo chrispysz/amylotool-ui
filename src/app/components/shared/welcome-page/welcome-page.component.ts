@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Model } from 'src/app/models/model';
 import { FirebaseService } from 'src/app/services/firebase.service';
 
 @Component({
@@ -8,10 +9,15 @@ import { FirebaseService } from 'src/app/services/firebase.service';
 })
 export class WelcomePageComponent implements OnInit {
   loggedIn = false;
+  models: Model[] = [];
 
   constructor(private readonly firebase: FirebaseService) {}
 
   ngOnInit(): void {
     this.loggedIn = this.firebase.getUserId() ? true : false;
+    this.firebase.getAllModels().then((models) => {
+      this.models = models;
+    }
+    );
   }
 }

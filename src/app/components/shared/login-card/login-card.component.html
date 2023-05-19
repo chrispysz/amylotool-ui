@@ -1,61 +1,40 @@
-<mat-card class="login-card">
-  <div style="margin: auto">
-    <ng-template [ngIf]="loading">
-      <mat-spinner></mat-spinner>
-    </ng-template>
-  </div>
-  <ng-template [ngIf]="!loading">
-    <mat-card-header>
-      <p-image src="assets/images/am.png" alt="Image" width="400"></p-image>
-    </mat-card-header>
-    <mat-card-content>
-      <form
-        style="
-          text-align: center;
-          margin-top: 50px;
-          display: flex;
-          flex-direction: column;
-        "
-      >
-        <mat-form-field>
-          <input matInput placeholder="Username" [formControl]="username" />
-          <mat-error *ngIf="username.invalid && username.errors">
-            <ng-container *ngIf="username.errors['required']"
-              >Username is required</ng-container
-            >
-            <ng-container *ngIf="username.errors['minlength']"
-              >Username must be at least 5 characters</ng-container
-            >
-            <ng-container *ngIf="username.errors['maxlength']"
-              >Username must not exceed 40 characters</ng-container
-            >
-          </mat-error>
-        </mat-form-field>
-        <mat-form-field>
-          <input
-            matInput
-            type="password"
-            placeholder="Password"
-            [formControl]="password"
-          />
-          <mat-error *ngIf="password.invalid && password.errors">
-            <ng-container *ngIf="password.errors['required']"
-              >Password is required</ng-container
-            >
-            <ng-container *ngIf="password.errors['minlength']"
-              >Password must be at least 5 characters</ng-container
-            >
-            <ng-container *ngIf="password.errors['maxlength']"
-              >Password must not exceed 40 characters</ng-container
-            >
-          </mat-error>
-        </mat-form-field>
-      </form>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" type="submit" (click)="login()">
-        Login
-      </button>
-    </mat-card-actions>
-  </ng-template>
-</mat-card>
+<p-card class="app-card" [style]="{ width: '500px', height: '400px' }">
+
+    <h1 class="app-title">AmyloTool</h1>
+
+    <form class="app-form">
+      <div class="p-field">
+        <input
+          pInputText
+          autocomplete="on"
+          id="username"
+          placeholder="Username"
+          [formControl]="username"
+          [pTooltip]="getUsernameErrorMessage()"
+          tooltipPosition="bottom"
+        />
+      </div>
+
+      <div class="p-field">
+        <input
+          pInputText
+          type="password"
+          autocomplete="on"
+          id="password"
+          placeholder="Password"
+          [formControl]="password"
+          [pTooltip]="getPasswordErrorMessage()"
+          tooltipPosition="bottom"
+        />
+      </div>
+
+      <button
+        pButton
+        label="Login"
+        [loading] = loading
+        type="button"
+        class="app-button"
+        (click)="login()"
+      ></button>
+    </form>
+</p-card>

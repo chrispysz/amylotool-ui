@@ -62,6 +62,19 @@ export class FirebaseService {
       });
   }
 
+  logOut() {
+    return signOut(this.auth)
+      .then(() => {
+        sessionStorage.removeItem('user');
+        this.router.navigate(['/login']);
+      })
+      .catch(() => {
+        this._snackBar.open('Logout failed', 'Ok', {
+          duration: 3.5 * 1000,
+        });
+      });
+  }
+
   getUserId(): string {
     if (this.userInSessionStorage()) {
       return JSON.parse(sessionStorage.getItem('user')!).uid;
@@ -222,7 +235,6 @@ export class FirebaseService {
 
   getModelsDummy() {
     return ['AmBERT', 'ProteinBERT', 'LSTM'];
-
   }
 
   async getAllModels(): Promise<Model[]> {

@@ -11,11 +11,20 @@ import { ThemeService } from 'src/app/services/theme.service';
 export class NavHeaderComponent implements OnInit {
   items: MenuItem[] = [];
 
-  stateOptions = [{icon: 'pi pi-sun', value: 'md-light-indigo'}, {icon: 'pi pi-moon', value: 'md-dark-indigo'}];
-  value1 = 'md-light-indigo';
+  stateOptions = [
+    { icon: 'pi pi-sun', value: 'md-light-indigo' },
+    { icon: 'pi pi-moon', value: 'md-dark-indigo' },
+  ];
 
-  constructor(private readonly auth: FirebaseService,
-    private readonly themeService: ThemeService) {}
+  startValue =
+    localStorage.getItem('theme') === 'md-dark-indigo'
+      ? 'md-dark-indigo'
+      : 'md-light-indigo';
+
+  constructor(
+    private readonly auth: FirebaseService,
+    private readonly themeService: ThemeService
+  ) {}
 
   ngOnInit(): void {
     this.items = [
@@ -35,9 +44,21 @@ export class NavHeaderComponent implements OnInit {
         routerLink: 'visit/details',
       },
     ];
+
+    
+      this.themeService.switchTheme(this.startValue);
+  }
+
+  logout() {
+    this.auth.logOut();
+  }
+
+  loggedIn() {
+    return this.auth.getUserId();
   }
 
   changeTheme(event: any) {
+    localStorage.setItem('theme', event.value);
     this.themeService.switchTheme(event.value);
   }
 }
