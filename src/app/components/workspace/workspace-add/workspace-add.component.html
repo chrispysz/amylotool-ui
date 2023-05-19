@@ -1,73 +1,70 @@
 <div *ngIf="loading; else content">
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  <p-progressBar mode="indeterminate"></p-progressBar>
 </div>
 <ng-template #content>
-  <mat-vertical-stepper
-    [linear]="true"
-    #stepper
-    [animationDuration]="'1000'"
-    style="height: 93vh"
-  >
-    <mat-step [stepControl]="firstFormGroup">
-      <form [formGroup]="firstFormGroup">
-        <ng-template matStepLabel>Upload FASTA file</ng-template>
-        <div class="stepper-content">
-          <button mat-mini-fab color="primary" (click)="fileInput.click()">
-            <mat-icon style="margin: 0px">attach_file</mat-icon>
-          </button>
-          <input
-            hidden
-            type="file"
-            formControlName="file"
-            (change)="onFileChange($event, stepper)"
-            #fileInput
-          />
-          <p *ngIf="!sizeValid">
-            Size limit reached. Check if file contains less than 1000 sequences
-            and their length doesn't exceed 512
-          </p>
-        </div>
-      </form>
-    </mat-step>
-    <mat-step [stepControl]="secondFormGroup">
-      <form [formGroup]="secondFormGroup">
-        <ng-template matStepLabel>Name your workspace</ng-template>
-        <div class="stepper-content">
-          <mat-form-field>
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="name" type="text" />
-          </mat-form-field>
-          <p *ngIf="!nameValid">Name already exists!</p>
-          <button
-            mat-raised-button
-            color="primary"
-            [disabled]="secondFormGroup.invalid || !sizeValid"
-            (click)="onNextClick(stepper)"
-          >
-            Next
-          </button>
-        </div>
-      </form>
-    </mat-step>
-    <mat-step>
-      <ng-template matStepLabel>Summary</ng-template>
-      <div *ngIf="stepperLoading; else submitContent">
-        <mat-spinner></mat-spinner>
-      </div>
-      <ng-template #submitContent>
-        <div class="stepper-content">
-          <div>
-            <p>Name: {{ secondFormGroup.value.name }}</p>
-            <p>
-              Number of sequences:
-              {{ fastaSequences ? fastaSequences.length : 0 }}
+  <div class="card">
+    <p-tabView [(activeIndex)]="activeIndex">
+      <p-tabPanel header="Upload FASTA file" [disabled]="activeIndex !== 0">
+          <form [formGroup]="firstFormGroup" class="stepper-content">
+            <button
+              pButton
+              label="Attach file"
+              icon="pi pi-paperclip"
+              (click)="fileInput.click()"
+            ></button>
+            <input
+              hidden
+              type="file"
+              formControlName="file"
+              (change)="onFileChange($event)"
+              #fileInput
+            />
+            <p *ngIf="!sizeValid">
+              Size limit reached. Check if file contains less than 10000
+              sequences and their length doesn't exceed 1024 characters.
             </p>
-          </div>
-          <button mat-raised-button color="primary" (click)="onSubmit()">
-            Submit
-          </button>
+          </form>
+      </p-tabPanel>
+      <p-tabPanel header="Name your workspace" [disabled]="activeIndex !== 1">
+          <form [formGroup]="secondFormGroup" class="stepper-content">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                size="30"
+                pInputText
+                formControlName="name"
+              />
+              <label for="float-input">Name</label>
+            </span>
+            <p *ngIf="!nameValid">Name already exists!</p>
+            
+            <button
+              pButton
+              label="Next"
+              [disabled]="secondFormGroup.invalid || !sizeValid"
+              (click)="onNextClick()"
+            ></button>
+            
+          </form>
+      </p-tabPanel>
+      <p-tabPanel header="Summary" [disabled]="activeIndex !== 2">
+        <div *ngIf="stepperLoading; else submitContent">
+          <p-progressSpinner></p-progressSpinner>
         </div>
-      </ng-template>
-    </mat-step>
-  </mat-vertical-stepper>
+        <ng-template #submitContent>
+          <div class="stepper-content">
+            <div>
+              <p>Name: {{ secondFormGroup.value.name }}</p>
+              <p>
+                Number of sequences:
+                {{ fastaSequences ? fastaSequences.length : 0 }}
+              </p>
+            </div>
+            <button pButton label="Submit" (click)="onSubmit()"></button>
+          </div>
+        </ng-template>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
 </ng-template>

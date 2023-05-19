@@ -10,9 +10,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSortModule } from '@angular/material/sort';
+import { SkeletonModule } from 'primeng/skeleton';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
+import { TabViewModule } from 'primeng/tabview';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -103,6 +103,7 @@ import { WorkspaceAlignComponent } from './components/workspace/workspace-align/
     MenubarModule,
     TieredMenuModule,
     TableModule,
+    TabViewModule,
     DividerModule,
     InputTextModule,
     ImageModule,
@@ -118,6 +119,7 @@ import { WorkspaceAlignComponent } from './components/workspace/workspace-align/
     ScrollPanelModule,
     CheckboxModule,
     MessagesModule,
+    SkeletonModule,
     
     
 

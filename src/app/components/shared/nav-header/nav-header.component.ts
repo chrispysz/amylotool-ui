@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -23,7 +24,8 @@ export class NavHeaderComponent implements OnInit {
 
   constructor(
     private readonly auth: FirebaseService,
-    private readonly themeService: ThemeService
+    private readonly themeService: ThemeService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {

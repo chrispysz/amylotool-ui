@@ -66,7 +66,7 @@ export class FirebaseService {
     return signOut(this.auth)
       .then(() => {
         sessionStorage.removeItem('user');
-        this.router.navigate(['/login']);
+        this.router.navigate(['/home']);
       })
       .catch(() => {
         this._snackBar.open('Logout failed', 'Ok', {

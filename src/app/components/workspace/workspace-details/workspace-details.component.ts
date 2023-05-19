@@ -251,7 +251,7 @@ export class WorkspaceDetailsComponent implements OnInit {
   checkCurrentModelAvailability(model: Model) {
     this.predictionService
       .checkServiceAvailability(model.url)
-      .pipe(delay(200), timeout(5000))
+      .pipe(delay(200), timeout(10000))
       .subscribe(
         (response) => {
           this.connectionErrorText = '';

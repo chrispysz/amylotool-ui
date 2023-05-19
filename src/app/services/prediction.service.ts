@@ -16,8 +16,7 @@ export class PredictionService {
     return this.httpClient.post(`${this.path}`, data);
   }
 
-  checkServiceAvailability(model: string): Observable<any> {
-    
+  checkServiceAvailability(model: string): Observable<any> { 
     let data = { modelUrl: model, sequence: 'MFKKHTISLLIIFLLASAVLAKPIEAHTVSPVNPNAQQTTK' };
     return this.httpClient.post(`${this.path}`, data);
   }

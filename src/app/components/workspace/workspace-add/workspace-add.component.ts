@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { FastaSequence } from 'src/app/models/fasta-sequence';
 import { Workspace } from 'src/app/models/workspace';
 import { WorkspaceDbReference } from 'src/app/models/workspace-db-reference';
@@ -24,13 +25,15 @@ export class WorkspaceAddComponent implements OnInit {
   stepperLoading = false;
   sizeValid = true;
   nameValid = true;
+  activeIndex: number = 0;
 
   constructor(
     private _formBuilder: FormBuilder,
     private readonly fileService: FileManagementService,
     private readonly firebaseService: FirebaseService,
     private readonly router: Router,
-    private readonly _snackBar: MatSnackBar
+    private readonly _snackBar: MatSnackBar,
+    private readonly messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -51,18 +54,18 @@ export class WorkspaceAddComponent implements OnInit {
     this.loading = false;
   }
 
-  async onFileChange(event: any, stepper: MatStepper) {
+  async onFileChange(event: any) {
     this.fastaFile = event.target.files[0];
     this.fastaSequences = this.fileService.parseFasta(
       await this.fastaFile!.text()
     );
     this.sizeValid = this.fileService.sizeValid(this.fastaSequences);
     if (this.sizeValid) {
-      stepper.next();
+      this.activeIndex = 1;
     }
   }
 
-  onNextClick(stepper: MatStepper) {
+  onNextClick() {
     if (this.secondFormGroup.value.name.length > 0) {
       this.firebaseService
         .checkForName(this.secondFormGroup.value.name)
@@ -71,7 +74,7 @@ export class WorkspaceAddComponent implements OnInit {
             this.nameValid = false;
           } else {
             this.nameValid = true;
-            stepper.next();
+            this.activeIndex = 2;
           }
         });
     }
@@ -118,8 +121,10 @@ export class WorkspaceAddComponent implements OnInit {
           .addWorkspaceRef(workspaceDbReference)
           .then(() => {
             this.router.navigate(['/workspaces']);
-            this._snackBar.open('Workspace created', 'OK', {
-              duration: 3.5 * 1000,
+            this.messageService.add({
+              severity: 'success',
+              summary: 'OK',
+              detail: `Workspace created`,
             });
           })
           .catch(() => {
