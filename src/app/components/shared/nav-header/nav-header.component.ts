@@ -56,7 +56,7 @@ export class NavHeaderComponent implements OnInit {
   }
 
   loggedIn() {
-    return this.auth.getUserId();
+    return  this.auth.getUserId() ? true : false;
   }
 
   changeTheme(event: any) {

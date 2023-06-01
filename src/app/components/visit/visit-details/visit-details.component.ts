@@ -25,6 +25,9 @@ export class VisitDetailsComponent {
 
   aminoAcidsRegex = /^[ACDEFGHIKLMNPQRSTVWY]+$/;
 
+  aligning = false;
+  selectedSequences: Sequence[] = [];
+
   workspace!: Workspace;
   currentlySelectedModel = {
     id: '',
@@ -197,5 +200,9 @@ export class VisitDetailsComponent {
       return false;
     }
     return true;
+  }
+
+  backFromAlign() {
+    this.aligning = false;
   }
 }

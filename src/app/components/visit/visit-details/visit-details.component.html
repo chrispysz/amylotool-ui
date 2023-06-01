@@ -34,7 +34,8 @@
       </p-divider>
       <p-tieredMenu [model]="modelItems"></p-tieredMenu>
     </div>
-    <div class="col" style="border-left: 1px solid; padding: 0">
+    <div class="col" style="border-left: 1px solid; padding: 0; border-color: #e0e0e1"
+    *ngIf="!aligning; else alignment">
       <p-table
         #dt
         [value]="workspace.sequences"
@@ -49,6 +50,7 @@
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         [filterDelay]="0"
         [globalFilterFields]="['name', 'value']"
+        [(selection)]="selectedSequences"
       >
         <ng-template pTemplate="caption">
           <div class="table-header">
@@ -62,10 +64,20 @@
               />
             </span>
             <span>Current model: {{ currentlySelectedModel.name }}</span>
+            <p-button
+              icon="pi pi-list"
+              title="Align selected"
+              [loading]="false"
+              label="Align"
+              (onClick)="aligning = true"
+            ></p-button>
           </div>
         </ng-template>
         <ng-template pTemplate="header">
           <tr>
+            <th style="width: 4rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
             <th style="width: 5%"></th>
             <th pSortableColumn="name" style="width: 50%">
               Name <p-sortIcon field="name"></p-sortIcon>
@@ -80,6 +92,11 @@
         </ng-template>
         <ng-template pTemplate="body" let-sequence let-expanded="expanded">
           <tr>
+            <td>
+              <p-tableCheckbox
+                [value]="sequence"
+              ></p-tableCheckbox>
+            </td>
             <td>
               <button
                 type="button"
@@ -146,6 +163,13 @@
     </div>
   </div>
 </div>
+<ng-template #alignment>
+  <app-workspace-align
+    [sequences]="selectedSequences"
+    [threshold]="threshold"
+    (backClick)="backFromAlign()"
+  ></app-workspace-align>
+</ng-template>
 <ng-template #submit>
   <p-card
     header="Guest"

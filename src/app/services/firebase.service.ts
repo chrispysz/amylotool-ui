@@ -80,9 +80,8 @@ export class FirebaseService {
       return JSON.parse(sessionStorage.getItem('user')!).uid;
     } else if (this.userLoggedIn()) {
       return this.auth.currentUser!.uid;
-    } else {
-      return '';
     }
+    return '';
   }
 
   private userInSessionStorage(): boolean {
