@@ -1,23 +1,27 @@
 <p-toast></p-toast>
-<p-dialog
-  header="Export (JSON)"
-  [(visible)]="exportVisible"
-  [resizable]="false"
-  [draggable]="false"
->
-  <span
-    >This is the JSON representation of the workspace. Click the button below to
-    copy it to your clipboard.</span
-  >
-  <textarea
-    pInputTextarea
-    [value]="workspace | json"
-    rows="10"
-    style="width: 80%"
-  ></textarea>
-</p-dialog>
+<p-confirmDialog #cd [style]="{ width: '50vw' }">
+  <ng-template pTemplate="header">
+    <h3>Confirm action</h3>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button
+      type="button"
+      pButton
+      icon="pi pi-times"
+      label="No"
+      (click)="cd.reject()"
+    ></button>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-check"
+      label="Yes"
+      (click)="cd.accept()"
+    ></button>
+  </ng-template>
+</p-confirmDialog>
 <div *ngIf="detailView; else submit">
-  <div class="grid" style="margin-right: 0">
+  <div class="grid flex-nowrap" style="margin-right: 0">
     <div class="col-fixed side-menu" style="width: 200px; padding: 0">
       <p-divider>
         <div class="inline-flex align-items-center">
@@ -34,8 +38,11 @@
       </p-divider>
       <p-tieredMenu [model]="modelItems"></p-tieredMenu>
     </div>
-    <div class="col" style="border-left: 1px solid; padding: 0; border-color: #e0e0e1"
-    *ngIf="!aligning; else alignment">
+    <div
+      class="col"
+      style="border-left: 1px solid; padding: 0; border-color: #e0e0e1"
+      *ngIf="!aligning; else alignment"
+    >
       <p-table
         #dt
         [value]="workspace.sequences"
@@ -66,9 +73,9 @@
             <span>Current model: {{ currentlySelectedModel.name }}</span>
             <p-button
               icon="pi pi-list"
-              title="Align selected"
+              title="Compare selected"
               [loading]="false"
-              label="Align"
+              label="Compare"
               (onClick)="aligning = true"
             ></p-button>
           </div>
@@ -93,9 +100,7 @@
         <ng-template pTemplate="body" let-sequence let-expanded="expanded">
           <tr>
             <td>
-              <p-tableCheckbox
-                [value]="sequence"
-              ></p-tableCheckbox>
+              <p-tableCheckbox [value]="sequence"></p-tableCheckbox>
             </td>
             <td>
               <button
@@ -116,13 +121,19 @@
                 title="Sequence unprocessed"
                 class="pi pi-question-circle"
                 style="font-size: 2rem"
-                *ngIf="!sequence.status && sequenceValid(sequence)"
+                *ngIf="
+                  (!sequence.status || sequence.status === 'NONE') &&
+                  sequenceValid(sequence)
+                "
               ></i>
               <i
                 title="Sequence length too short for this model"
                 class="pi pi-exclamation-circle"
                 style="color: orange; font-size: 2rem"
-                *ngIf="!sequence.status && !sequenceValid(sequence)"
+                *ngIf="
+                  (!sequence.status || sequence.status === 'NONE') &&
+                  !sequenceValid(sequence)
+                "
               ></i>
               <i
                 title="Positives found"

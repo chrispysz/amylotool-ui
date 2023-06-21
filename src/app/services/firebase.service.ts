@@ -11,12 +11,7 @@ import {
   updateDoc,
   serverTimestamp,
 } from '@angular/fire/firestore';
-import {
-  Auth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-} from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
 import {
   deleteObject,
   getDownloadURL,
@@ -25,7 +20,6 @@ import {
   uploadBytesResumable,
 } from '@angular/fire/storage';
 import { WorkspaceDbReference } from '../models/workspace-db-reference';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Workspace } from '../models/workspace';
 import { Router } from '@angular/router';
 import { Model } from '../models/model';
@@ -41,8 +35,7 @@ export class FirebaseService {
     private readonly firestore: Firestore,
     private readonly http: HttpClient,
     private readonly auth: Auth,
-    private readonly router: Router,
-    private readonly _snackBar: MatSnackBar
+    private readonly router: Router
   ) {
     this.workspacesCollection = collection(firestore, 'workspaces');
     this.modelsCollection = collection(firestore, 'models');
@@ -55,11 +48,7 @@ export class FirebaseService {
         sessionStorage.setItem('user', JSON.stringify(this.auth.currentUser));
         this.router.navigate(['/workspaces']);
       })
-      .catch(() => {
-        this._snackBar.open('Login failed', 'Ok', {
-          duration: 3.5 * 1000,
-        });
-      });
+      .catch(() => {});
   }
 
   logOut() {
@@ -68,11 +57,7 @@ export class FirebaseService {
         sessionStorage.removeItem('user');
         this.router.navigate(['/home']);
       })
-      .catch(() => {
-        this._snackBar.open('Logout failed', 'Ok', {
-          duration: 3.5 * 1000,
-        });
-      });
+      .catch(() => {console.error('Error while logging out')});
   }
 
   getUserId(): string {
@@ -209,9 +194,6 @@ export class FirebaseService {
           resolve(true);
         })
         .catch((err) => {
-          this._snackBar.open('Workspace update failed', 'OK', {
-            duration: 3.5 * 1000,
-          });
           reject(err);
         });
     });
@@ -224,9 +206,6 @@ export class FirebaseService {
           resolve(true);
         })
         .catch((err) => {
-          this._snackBar.open('Workspace upload failed', 'OK', {
-            duration: 3.5 * 1000,
-          });
           reject(err);
         });
     });
@@ -259,9 +238,6 @@ export class FirebaseService {
     return new Promise((resolve, reject) => {
       let docRef = doc(this.firestore, 'workspaces', id);
       deleteDoc(docRef).catch((err) => {
-        this._snackBar.open('Workspace delete failed', 'Ok', {
-          duration: 3.5 * 1000,
-        });
         reject(err);
       });
       resolve(true);

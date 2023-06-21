@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <app-login-card *ngIf="!loggedIn"></app-login-card>
 <div class="grid">
   <div class="col-4 m-auto" *ngFor="let model of models">
@@ -6,10 +7,10 @@
         <div class="card-header">
           <div class="image-title">
             <img class="model-image" [src]="model.imageUrl" alt="Model image" />
-            <h1 style="margin-bottom: 0px;">{{model.name}}</h1>
+            <h1 style="margin-bottom: 0px">{{ model.name }}</h1>
           </div>
           <div class="model-text">
-            <p>{{model.description}}</p>
+            <p>{{ model.description }}</p>
           </div>
         </div>
       </ng-template>

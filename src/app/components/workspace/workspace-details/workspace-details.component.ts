@@ -89,17 +89,39 @@ export class WorkspaceDetailsComponent implements OnInit {
       label: 'Download JSON',
       icon: 'pi pi-download',
       command: () => {
-        this.confirmationService.confirm({
-          message: `Are you sure that you want to download all the predictions for this workspace?`,
-          icon: 'pi pi-exclamation-triangle',
-          accept: () => {
-            const blob = new Blob([JSON.stringify(this.workspace)], {
-              type: 'text/json',
-            });
-            FileSaver.saveAs(blob, 'data.json');
-          },
-          reject: () => {},
-        });
+        try {
+          let seqs = {
+            ...this.selectedSequences,
+          };
+          seqs.forEach((element: any) => {
+            delete element.edited;
+            delete element.status;
+          });
+          const jsonData = JSON.stringify(seqs, null, 2).replace(/\\/g, '');
+          const blob = new Blob([jsonData], { type: 'text/json' });
+          const blobSizeInMegabytes = (blob.size / (1024 * 1024)).toFixed(2); // convert blob size from bytes to megabytes
+
+          this.confirmationService.confirm({
+            message: `The file size is approximately ${blobSizeInMegabytes} MB. Are you sure that you want to download all the predictions for this workspace?`,
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+              const date = new Date();
+              const formattedDate = `${date.getFullYear()}-${
+                date.getMonth() + 1
+              }-${date.getDate()}_${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
+              FileSaver.saveAs(blob, `data_${formattedDate}.json`);
+            },
+            reject: () => {},
+          });
+        } catch (error) {
+          console.error('Failed to download data', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to download data',
+          });
+        }
       },
     },
     {
@@ -267,11 +289,11 @@ export class WorkspaceDetailsComponent implements OnInit {
           this.connectionErrorText = error.error
             ? error.error.error
             : 'Request timed out';
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: `Connection with ${model.name} could not be established`,
-            });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Connection with ${model.name} could not be established`,
+          });
           this.checkingAvailability = false;
           this.remapModelItems();
         }
@@ -533,7 +555,7 @@ export class WorkspaceDetailsComponent implements OnInit {
           }
         });
       } else {
-        sequence.status = '';
+        sequence.status = 'NONE';
       }
     });
   }

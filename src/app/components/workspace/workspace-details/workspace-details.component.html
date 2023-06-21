@@ -22,7 +22,7 @@
 </p-confirmDialog>
 <p-progressBar [value]="predictionPercentage"></p-progressBar>
 <div *ngIf="!loading; else tableInit">
-  <div class="grid" style="margin-right: 0">
+  <div class="grid flex-nowrap" style="margin-right: 0">
     <div
       class="col-fixed side-menu"
       style="width: 200px; padding: 0; min-height: 800px"
@@ -49,30 +49,6 @@
       *ngIf="!aligning; else alignment"
     >
       <div class="header">
-        <p-card
-          *ngIf="predictingAll"
-          header="Prediction info"
-          [subheader]="currentlySelectedModel.name"
-          class="header-spaced"
-          [style]="{ width: '360px' }"
-        >
-          <ng-template pTemplate="header"> </ng-template>
-          <p>
-            <b>Progress:</b> {{ currentlyPredictedIndex - 1 }}/{{
-              totalPredictions
-            }}
-            ({{ predictionPercentage }}%)
-          </p>
-          <p><b>Avg. time per prediction:</b> {{ atpp }} seconds</p>
-          <p-button
-            icon="pi pi-stop"
-            title="Cancel running predictions"
-            styleClass="p-button-warning"
-            [loading]="false"
-            label="Cancel"
-            (onClick)="cancelPrediction()"
-          ></p-button>
-        </p-card>
         <div class="header-spaced">
           <span class="p-input-icon-left" style="align-self: flex-start">
             <i class="pi pi-search"></i>
@@ -100,15 +76,40 @@
             ></p-button>
             <p-button
               icon="pi pi-list"
-              title="Align selected"
+              title="Compare selected"
               [loading]="false"
-              label="Align"
+              label="Compare"
               [disabled]="processRunning()"
               (onClick)="aligning = true"
             ></p-button>
           </div>
 
+          <div class="header-center" *ngIf="predictingAll">
+            <p>
+              Running predictions for <b>{{ currentlySelectedModel.name }}</b>
+              {{ currentlyPredictedIndex - 1 }}/{{ totalPredictions }} ({{
+                predictionPercentage
+              }}%)
+            </p>
+            <p>
+              <b>TpP:</b> {{ atpp }} s
+              <i
+                class="pi pi-info-circle"
+                title="Average time of a single subsequence prediction"
+              ></i>
+            </p>
+          </div>
+
           <div class="header-right">
+            <p-button
+              icon="pi pi-stop"
+              title="Cancel running predictions"
+              styleClass="p-button-warning"
+              [loading]="false"
+              label="Stop & Save"
+              [disabled]="!processRunning()"
+              (onClick)="cancelPrediction()"
+            ></p-button>
             <p-button
               icon="pi pi-trash"
               title="Delete selected"
@@ -183,13 +184,19 @@
                 title="Sequence unprocessed"
                 class="pi pi-question-circle"
                 style="font-size: 2rem"
-                *ngIf="!sequence.status && sequenceValid(sequence)"
+                *ngIf="
+                  (!sequence.status || sequence.status === 'NONE') &&
+                  sequenceValid(sequence)
+                "
               ></i>
               <i
                 title="Sequence length too short for this model"
                 class="pi pi-exclamation-circle"
                 style="color: orange; font-size: 2rem"
-                *ngIf="!sequence.status && !sequenceValid(sequence)"
+                *ngIf="
+                  (!sequence.status || sequence.status === 'NONE') &&
+                  !sequenceValid(sequence)
+                "
               ></i>
               <i
                 title="Positives found"

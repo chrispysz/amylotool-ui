@@ -1,7 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MenuItem, MessageService } from 'primeng/api';
+import * as FileSaver from 'file-saver';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Model } from 'src/app/models/model';
 import { Sequence } from 'src/app/models/sequence';
@@ -38,18 +39,42 @@ export class VisitDetailsComponent {
 
   sideMenuItems: MenuItem[] = [
     {
-      label: 'Export as JSON',
-      icon: 'pi pi-upload',
+      label: 'Download JSON',
+      icon: 'pi pi-download',
       command: () => {
-        this.exportVisible = true;
-        let savedWorkspace = {
-          ...this.workspace,
-        };
-        savedWorkspace.sequences.forEach((element: any) => {
-          delete element.note;
-          delete element.status;
-        });
-        this.exportJSON = JSON.stringify(savedWorkspace);
+        try {
+          let seqs = {
+            ...this.selectedSequences,
+          };
+          seqs.forEach((element: any) => {
+            delete element.edited;
+            delete element.status;
+          });
+          const jsonData = JSON.stringify(seqs, null, 2).replace(/\\/g, '');
+          const blob = new Blob([jsonData], { type: 'text/json' });
+          const blobSizeInMegabytes = (blob.size / (1024 * 1024)).toFixed(2);
+
+          this.confirmationService.confirm({
+            message: `The file size is approximately ${blobSizeInMegabytes} MB. Are you sure that you want to download all the predictions for this workspace?`,
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+              const date = new Date();
+              const formattedDate = `${date.getFullYear()}-${
+                date.getMonth() + 1
+              }-${date.getDate()}_${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
+              FileSaver.saveAs(blob, `data_${formattedDate}.json`);
+            },
+            reject: () => {},
+          });
+        } catch (error) {
+          console.error('Failed to download data', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to download data',
+          });
+        }
       },
     },
     {
@@ -75,7 +100,8 @@ export class VisitDetailsComponent {
     private fb: FormBuilder,
     private readonly wService: FirebaseService,
     private readonly router: Router,
-    private readonly messageService: MessageService
+    private readonly messageService: MessageService,
+    private readonly confirmationService: ConfirmationService
   ) {}
 
   applyFilterGlobal($event: Event, stringVal: string) {
@@ -124,7 +150,6 @@ export class VisitDetailsComponent {
         console.error(error);
         this.fetchLoading = false;
       });
-      
   }
 
   predictionExists(sequence: Sequence) {
@@ -187,7 +212,7 @@ export class VisitDetailsComponent {
           }
         });
       } else {
-        sequence.status = '';
+        sequence.status = 'NONE';
       }
     });
   }

@@ -32,7 +32,6 @@ export class WorkspaceAddComponent implements OnInit {
     private readonly fileService: FileManagementService,
     private readonly firebaseService: FirebaseService,
     private readonly router: Router,
-    private readonly _snackBar: MatSnackBar,
     private readonly messageService: MessageService
   ) {}
 

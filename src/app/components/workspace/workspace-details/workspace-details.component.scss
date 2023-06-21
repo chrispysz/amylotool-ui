@@ -60,6 +60,14 @@
   column-gap: 20px;
 }
 
+.header-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  column-gap: 20px;
+}
+
 :host ::ng-deep {
   .p-dialog {
     max-width: 800px;
