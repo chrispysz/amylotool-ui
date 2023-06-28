@@ -57,7 +57,9 @@ export class FirebaseService {
         sessionStorage.removeItem('user');
         this.router.navigate(['/home']);
       })
-      .catch(() => {console.error('Error while logging out')});
+      .catch(() => {
+        console.error('Error while logging out');
+      });
   }
 
   getUserId(): string {
@@ -116,10 +118,7 @@ export class FirebaseService {
   }
 
   async loadWorkspace(id: string): Promise<Workspace> {
-    const storageRef = ref(
-      this.storage,
-      `workspaces/${this.getUserId()}/${id}`
-    );
+    const storageRef = id.includes('/') ? ref(this.storage, `workspaces/${id}`) : ref(this.storage, `workspaces/${this.getUserId()}/${id}`);
     const url = await getDownloadURL(storageRef);
     try {
       const response = await this.http

@@ -39,17 +39,17 @@ export class VisitDetailsComponent {
 
   sideMenuItems: MenuItem[] = [
     {
-      label: 'Download JSON',
+      label: 'Export Selected (JSON)',
       icon: 'pi pi-download',
       command: () => {
         try {
-          let seqs = {
-            ...this.selectedSequences,
-          };
-          seqs.forEach((element: any) => {
-            delete element.edited;
-            delete element.status;
+          let seqs = this.selectedSequences.map((element: any) => {
+            let newElement = { ...element };
+            delete newElement.edited;
+            delete newElement.status;
+            return newElement;
           });
+
           const jsonData = JSON.stringify(seqs, null, 2).replace(/\\/g, '');
           const blob = new Blob([jsonData], { type: 'text/json' });
           const blobSizeInMegabytes = (blob.size / (1024 * 1024)).toFixed(2);
@@ -92,7 +92,7 @@ export class VisitDetailsComponent {
   idForm = this.fb.group({
     id: [
       '',
-      [Validators.required, Validators.minLength(1), Validators.maxLength(50)],
+      [Validators.required, Validators.minLength(1), Validators.maxLength(100)],
     ],
   });
 
@@ -128,6 +128,10 @@ export class VisitDetailsComponent {
             this.models = models;
             this.modelItems = models.map((model) => {
               return {
+                icon:
+                  model.name === this.currentlySelectedModel.name
+                    ? 'pi pi-check'
+                    : '',
                 label: model.name,
                 command: () => {
                   this.currentlySelectedModel = model;
@@ -214,6 +218,20 @@ export class VisitDetailsComponent {
       } else {
         sequence.status = 'NONE';
       }
+    });
+
+    this.modelItems = this.models.map((model) => {
+      return {
+        icon:
+          model.name === this.currentlySelectedModel.name
+            ? 'pi pi-check'
+            : '',
+        label: model.name,
+        command: () => {
+          this.currentlySelectedModel = model;
+          this.refreshSequences();
+        },
+      };
     });
   }
 

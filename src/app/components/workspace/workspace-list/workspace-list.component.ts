@@ -56,7 +56,8 @@ export class WorkspaceListComponent implements OnInit {
   }
 
   copyToClipboard(workspace: WorkspaceDbReference) {
-    this.clipboard.copy(workspace.id);
+    let userId = this.firebaseService.getUserId();
+    this.clipboard.copy(userId + '/' + workspace.id);
     this.messageService.add({
       severity: 'success',
       summary: 'Success',

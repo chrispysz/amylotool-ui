@@ -86,17 +86,17 @@ export class WorkspaceDetailsComponent implements OnInit {
 
   sideMenuItems: MenuItem[] = [
     {
-      label: 'Download JSON',
+      label: 'Export Selected (JSON)',
       icon: 'pi pi-download',
       command: () => {
         try {
-          let seqs = {
-            ...this.selectedSequences,
-          };
-          seqs.forEach((element: any) => {
-            delete element.edited;
-            delete element.status;
+          let seqs = this.selectedSequences.map((element: any) => {
+            let newElement = { ...element };
+            delete newElement.edited;
+            delete newElement.status;
+            return newElement;
           });
+
           const jsonData = JSON.stringify(seqs, null, 2).replace(/\\/g, '');
           const blob = new Blob([jsonData], { type: 'text/json' });
           const blobSizeInMegabytes = (blob.size / (1024 * 1024)).toFixed(2); // convert blob size from bytes to megabytes
